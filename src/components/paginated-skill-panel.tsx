@@ -51,20 +51,13 @@ const SkillItem = ({ text, icon: Icon }: { text: string, icon: any }) => {
           <div className="flex-1 overflow-hidden relative" ref={containerRef}>
             {isOverflowing ? (
                  <div className="w-full overflow-hidden">
-                    <motion.div
-                        className="whitespace-nowrap flex w-fit"
-                        animate={{ x: ["0%", "-50%"] }}
-                        transition={{ 
-                            repeat: Infinity, 
-                            ease: "linear", 
-                            duration: Math.max(5, duration), // Minimum 5s duration
-                        }}
-                        // Pause on hover for readability
-                        whileHover={{ animationPlayState: "paused" }} 
+                    <div
+                        className="whitespace-nowrap flex w-fit animate-marquee"
+                        style={{ "--duration": `${Math.max(5, duration)}s` } as React.CSSProperties}
                     >
                         <span ref={textRef} className="mr-8">{text}</span>
-                        <span>{text}</span>
-                    </motion.div>
+                        <span className="mr-8">{text}</span>
+                    </div>
                  </div>
             ) : (
                  <span className="truncate block" ref={textRef}>{text}</span>

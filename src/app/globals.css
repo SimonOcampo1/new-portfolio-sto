@@ -568,8 +568,25 @@ section {
   }
 }
 
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee var(--duration, 10s) linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-scroll__icon {
     animation: none;
+  }
+  .animate-marquee {
+    animation: none;
+    transform: translateX(0);
   }
 }
