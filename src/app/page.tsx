@@ -48,6 +48,7 @@ import Link from "next/link";
 import { AddProjectDialog } from "@/components/admin/add-project-dialog";
 import { AddPublicationDialog } from "@/components/admin/add-publication-dialog";
 import { AddSkillDialog } from "@/components/admin/add-skill-dialog";
+import { iconMap as lucideIconMap } from "@/lib/icons";
 
 type LanguageKey = "en" | "es";
 
@@ -132,6 +133,7 @@ interface SkillData {
   id: string;
   name: string;
   category: string;
+  icon?: string;
 }
 
 interface PortfolioData {
@@ -281,6 +283,20 @@ export default function Home() {
 
     return { technical: tech, academic: acad, languages: lang };
   }, [dynamicData.skills, language]);
+
+  // Merge static and dynamic icons
+  const mergedIconMap = useMemo(() => {
+    const staticMap = Object.fromEntries(skillIcons.map(i => [i.label, i.icon]));
+    
+    const dynamicMap: Record<string, any> = {};
+    dynamicData.skills.forEach((s: SkillData) => {
+      if (s.icon && lucideIconMap[s.icon]) {
+        dynamicMap[s.name] = lucideIconMap[s.icon];
+      }
+    });
+
+    return { ...staticMap, ...dynamicMap };
+  }, [dynamicData.skills]);
 
   const nextPage = () => {
     if (publicationPage < totalPublicationPages - 1) {
@@ -652,7 +668,7 @@ export default function Home() {
                     title={t.skills.technical} 
                     items={mergedSkills.technical} 
                     itemsPerPage={10} 
-                    iconMap={Object.fromEntries(skillIcons.map(i => [i.label, i.icon]))}
+                    iconMap={mergedIconMap}
                   />
                   <PaginatedSkillPanel 
                     title={t.skills.academic} 

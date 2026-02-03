@@ -12,10 +12,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === "POST") {
     try {
-      const { name, category } = req.body;
+      const { name, category, icon } = req.body;
       const skill = await prisma.skill.create({
         data: {
-          name, category
+          name, category, icon
         }
       });
       res.status(200).json(skill);
