@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
+import { useSession, signIn, signOut } from "next-auth/react";
 import {
   AppWindow,
   Atom,
@@ -44,6 +45,9 @@ import { allPublications } from "@/data/publications";
 import { skills } from "@/data/skills";
 import { translations } from "@/data/translations";
 import Link from "next/link";
+import { AddProjectDialog } from "@/components/admin/add-project-dialog";
+import { AddPublicationDialog } from "@/components/admin/add-publication-dialog";
+import { AddSkillDialog } from "@/components/admin/add-skill-dialog";
 
 type LanguageKey = "en" | "es";
 
@@ -138,12 +142,15 @@ interface PortfolioData {
 
 export default function Home() {
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const { data: session } = useSession();
   const [language, setLanguage] = useState<LanguageKey>("en");
   const [mounted, setMounted] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [copied, setCopied] = useState(false);
   const [publicationPage, setPublicationPage] = useState(0);
   const [dynamicData, setDynamicData] = useState<PortfolioData>({ projects: [], publications: [], skills: [] });
+
+  const isAdmin = session?.user?.email === "ocamposimon1@gmail.com";
 
   const copyEmail = () => {
     navigator.clipboard.writeText("ocamposimon1@gmail.com");
@@ -436,9 +443,12 @@ export default function Home() {
                     <p className="text-sm uppercase tracking-[0.35em] text-muted-foreground">
                       {t.projects.title}
                     </p>
-                    <h2 className="font-display text-3xl">
-                      {language === "en" ? "Featured Works" : "Trabajos Destacados"}
-                    </h2>
+                    <div className="flex items-center gap-2">
+                        <h2 className="font-display text-3xl">
+                        {language === "en" ? "Featured Works" : "Trabajos Destacados"}
+                        </h2>
+                        {isAdmin && <AddProjectDialog />}
+                    </div>
                   </motion.div>
                   <motion.div variants={sectionReveal}>
                     <Button variant="outline" onClick={() => goToSlide(4)}>
@@ -510,11 +520,14 @@ export default function Home() {
                       <p className="text-sm uppercase tracking-[0.35em] text-muted-foreground">
                         {t.publications.title}
                       </p>
-                      <h2 className="font-display text-3xl">
-                        {language === "en"
-                          ? "Academic Publications"
-                          : "Publicaciones Académicas"}
-                      </h2>
+                      <div className="flex items-center gap-2">
+                        <h2 className="font-display text-3xl">
+                            {language === "en"
+                            ? "Academic Publications"
+                            : "Publicaciones Académicas"}
+                        </h2>
+                        {isAdmin && <AddPublicationDialog />}
+                      </div>
                     </motion.div>
                     <motion.p variants={sectionReveal} className="text-muted-foreground">
                       {language === "en"
@@ -627,9 +640,12 @@ export default function Home() {
                   >
                     {t.skills.title}
                   </motion.p>
-                  <motion.h2 variants={sectionReveal} className="font-display text-3xl">
-                    {language === "en" ? "My Skills" : "Mis Habilidades"}
-                  </motion.h2>
+                  <div className="flex items-center gap-2">
+                    <motion.h2 variants={sectionReveal} className="font-display text-3xl">
+                        {language === "en" ? "My Skills" : "Mis Habilidades"}
+                    </motion.h2>
+                    {isAdmin && <AddSkillDialog />}
+                  </div>
                 </motion.div>
                 <div className="skills-grid">
                   <PaginatedSkillPanel 
@@ -694,9 +710,12 @@ export default function Home() {
                     
                     {/* Admin Access Link */}
                      <div className="pt-8 flex justify-start">
-                         <Link href="/admin" className="text-[0.6rem] text-muted-foreground/20 hover:text-muted-foreground transition-colors uppercase tracking-widest">
-                            Admin Access
-                         </Link>
+                         <button 
+                            onClick={() => isAdmin ? signOut() : signIn("google")}
+                            className="text-[0.6rem] text-muted-foreground/20 hover:text-muted-foreground transition-colors uppercase tracking-widest"
+                         >
+                            {isAdmin ? "Admin Logout" : "Admin Access"}
+                         </button>
                      </div>
 
                   </motion.div>
