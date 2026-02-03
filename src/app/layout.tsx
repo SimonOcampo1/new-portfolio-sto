@@ -3,6 +3,7 @@ import { Geist, Manrope } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import { Providers } from "@/app/providers";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -33,6 +34,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             <SmoothScroll />
             {children}
+            <Toaster />
           </ThemeProvider>
         </Providers>
       </body>
