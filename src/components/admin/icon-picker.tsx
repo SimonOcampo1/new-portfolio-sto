@@ -34,7 +34,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
           )}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent className="h-[300px]">
+      <SelectContent position="popper" className="max-h-[300px]">
         {iconNames.map((name) => {
           const Icon = iconMap[name] as LucideIcon;
           return (

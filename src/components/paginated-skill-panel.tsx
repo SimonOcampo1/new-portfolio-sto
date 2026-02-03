@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ChevronLeft, ChevronRight, Code2 } from "lucide-react";
@@ -15,57 +15,18 @@ interface PaginatedSkillPanelProps {
 }
 
 const SkillItem = ({ text, icon: Icon }: { text: string, icon: any }) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const textRef = useRef<HTMLSpanElement>(null);
-    const [isOverflowing, setIsOverflowing] = useState(false);
-    const [duration, setDuration] = useState(10);
-  
-    useEffect(() => {
-      const checkOverflow = () => {
-        if (containerRef.current && textRef.current) {
-            const containerWidth = containerRef.current.offsetWidth;
-            const textWidth = textRef.current.offsetWidth;
-            
-            // If text is significantly larger (buffer of 2px)
-            if (textWidth > containerWidth) {
-              setIsOverflowing(true);
-              // Calculate duration based on width for consistent speed (approx 20px/s)
-              setDuration(textWidth / 20);
-            } else {
-                setIsOverflowing(false);
-            }
-          }
-      };
-
-      checkOverflow();
-      window.addEventListener('resize', checkOverflow);
-      return () => window.removeEventListener('resize', checkOverflow);
-    }, [text]);
-  
-    return (
-      <div className="skill-row text-xs py-1 flex items-center overflow-hidden w-full group select-none">
-          <span className="skill-row__icon w-6 h-6 min-w-[24px] shrink-0 flex items-center justify-center mr-2">
-              <Icon size={14} />
-          </span>
-          
-          <div className="flex-1 overflow-hidden relative" ref={containerRef}>
-            {isOverflowing ? (
-                 <div className="w-full overflow-hidden">
-                    <div
-                        className="whitespace-nowrap flex w-fit animate-marquee"
-                        style={{ "--duration": `${Math.max(5, duration)}s` } as React.CSSProperties}
-                    >
-                        <span ref={textRef} className="mr-8">{text}</span>
-                        <span className="mr-8">{text}</span>
-                    </div>
-                 </div>
-            ) : (
-                 <span className="truncate block" ref={textRef}>{text}</span>
-            )}
-          </div>
-      </div>
-    )
-  }
+  return (
+    <div className="skill-row text-xs py-1 flex items-start w-full group select-none">
+        <span className="skill-row__icon w-6 h-6 min-w-[24px] shrink-0 flex items-center justify-center mr-2 mt-0.5">
+            <Icon size={14} />
+        </span>
+        
+        <div className="flex-1 min-w-0">
+             <span className="block whitespace-normal leading-tight">{text}</span>
+        </div>
+    </div>
+  )
+}
 
 export function PaginatedSkillPanel({
   title,

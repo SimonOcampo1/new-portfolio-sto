@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconPicker } from "./icon-picker";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -25,6 +32,10 @@ export function AddSkillDialog() {
 
   const handleIconChange = (value: string) => {
     setFormData((prev: any) => ({ ...prev, icon: value }));
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setFormData((prev: any) => ({ ...prev, category: value }));
   };
 
   const handleSubmit = async () => {
@@ -64,7 +75,18 @@ export function AddSkillDialog() {
         </DialogHeader>
         <div className="grid grid-cols-1 gap-4 py-4">
           <Input name="name" placeholder="Skill Name" onChange={handleInputChange} />
-          <Input name="category" placeholder="Category (technical, academic, languages)" onChange={handleInputChange} />
+          
+          <Select value={formData.category} onValueChange={handleCategoryChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="technical">Technical</SelectItem>
+              <SelectItem value="academic">Academic</SelectItem>
+              <SelectItem value="languages">Languages</SelectItem>
+            </SelectContent>
+          </Select>
+          
           <IconPicker value={formData.icon} onChange={handleIconChange} />
         </div>
         <Button onClick={handleSubmit} disabled={loading} className="w-full">
