@@ -1,0 +1,5 @@
+create a portfolio web app for me, a systems analyst and future system engineer, using as stack node.js and next.js, and the shadcn mcp server as your library for components and visual UI design. Construct an aesthetic header (perhaps searching in shadcn, there are many beatiful ones) with my name (Simón Ocampo) and role/curent career, a github projects section, an academic section with my publications (ORCID button included + publications that you can click and be redirected) and a section about my skills, and also a contact me section. 
+
+I will provide all the relevant data as json files for completing the details.
+
+IMPORTANT: I want you to imitate and follow this portfolio idea that im attaching to you through the image/screenshot, because i really liked it and i want a portfolio that looks almost like this, but with my personal info and a specific color palette that i will send you later. Please provide a theme switcher button and a language switcher as well (spanish and english), and also a button to see my CV (a pdf, both in english and spanish depending on which language is selected). 
