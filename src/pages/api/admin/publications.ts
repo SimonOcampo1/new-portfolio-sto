@@ -23,8 +23,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error(error);
       res.status(500).json({ error: "Failed to create publication" });
     }
+  } else if (req.method === "PUT") {
+    try {
+      const { id, ...data } = req.body;
+      const publication = await prisma.publication.update({
+        where: { id },
+        data,
+      });
+      res.status(200).json(publication);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Failed to update publication" });
+    }
+  } else if (req.method === "DELETE") {
+    try {
+      const { id } = req.body;
+      await prisma.publication.delete({ where: { id } });
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Failed to delete publication" });
+    }
   } else {
-    res.setHeader("Allow", ["POST"]);
+    res.setHeader("Allow", ["POST", "PUT", "DELETE"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

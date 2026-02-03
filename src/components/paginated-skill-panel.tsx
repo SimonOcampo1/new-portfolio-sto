@@ -3,20 +3,32 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ChevronLeft, ChevronRight, Code2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Code2, Pencil, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { AddSkillDialog } from "@/components/admin/add-skill-dialog";
+
+export interface SkillItemData {
+    id?: string;
+    name: string;
+    category?: string;
+    icon?: string;
+}
 
 interface PaginatedSkillPanelProps {
   title: string;
-  items: string[];
+  items: (string | SkillItemData)[];
   iconMap?: Record<string, any>; // Using generic map for simplicity
   defaultIcon?: any;
   itemsPerPage?: number;
+  isAdmin?: boolean;
 }
 
-const SkillItem = ({ text, icon: Icon }: { text: string, icon: any }) => {
+const SkillItem = ({ item, icon: Icon, isAdmin }: { item: string | SkillItemData, icon: any, isAdmin?: boolean }) => {
+  const text = typeof item === 'string' ? item : item.name;
+  const isDynamic = typeof item !== 'string' && !!item.id;
+  
   return (
-    <div className="skill-row text-xs py-1 flex items-start w-full group select-none">
+    <div className="skill-row text-xs py-1 flex items-start w-full group select-none relative pr-8">
         <span className="skill-row__icon w-6 h-6 min-w-[24px] shrink-0 flex items-center justify-center mr-2 mt-0.5">
             <Icon size={14} />
         </span>
@@ -24,6 +36,16 @@ const SkillItem = ({ text, icon: Icon }: { text: string, icon: any }) => {
         <div className="flex-1 min-w-0">
              <span className="block whitespace-normal leading-tight">{text}</span>
         </div>
+        
+        {isAdmin && isDynamic && typeof item !== 'string' && (
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm rounded">
+                 <AddSkillDialog existingSkill={item as any} trigger={<Button variant="ghost" size="icon" className="h-6 w-6 text-primary"><Pencil size={12} /></Button>} />
+                 {/* Delete is handled inside dialog or we need a separate delete button here? 
+                     Let's put delete inside the edit dialog for simplicity or next to it.
+                     For now let's just use the Edit dialog which will have Delete.
+                 */}
+            </div>
+        )}
     </div>
   )
 }
@@ -34,6 +56,7 @@ export function PaginatedSkillPanel({
   iconMap = {},
   defaultIcon: DefaultIcon = Code2,
   itemsPerPage = 10,
+  isAdmin = false,
 }: PaginatedSkillPanelProps) {
   const [page, setPage] = useState(0);
   const totalPages = Math.ceil(items.length / itemsPerPage);
@@ -94,9 +117,10 @@ export function PaginatedSkillPanel({
                 className="grid grid-cols-2 gap-x-4 gap-y-2 content-start"
             >
                 {currentItems.map((item, index) => {
-                    const Icon = iconMap[item] || DefaultIcon;
+                    const text = typeof item === 'string' ? item : item.name;
+                    const Icon = iconMap[text] || DefaultIcon;
                     return (
-                        <SkillItem key={`${item}-${index}`} text={item} icon={Icon} />
+                        <SkillItem key={`${text}-${index}`} item={item} icon={Icon} isAdmin={isAdmin} />
                     );
                 })}
             </motion.div>

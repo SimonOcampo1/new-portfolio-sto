@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconPicker } from "./icon-picker";
@@ -18,12 +18,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
+import { SkillItemData } from "@/components/paginated-skill-panel";
 
-export function AddSkillDialog() {
+interface AddSkillDialogProps {
+    existingSkill?: SkillItemData;
+    trigger?: React.ReactNode;
+}
+
+export function AddSkillDialog({ existingSkill, trigger }: AddSkillDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<any>({});
+
+  useEffect(() => {
+      if (open && existingSkill) {
+          setFormData(existingSkill);
+      } else if (open && !existingSkill) {
+          setFormData({});
+      }
+  }, [open, existingSkill]);
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -41,42 +55,69 @@ export function AddSkillDialog() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/skills", {
-        method: "POST",
+      const url = "/api/admin/skills";
+      const method = existingSkill ? "PUT" : "POST";
+      
+      const res = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       if (res.ok) {
-        alert("Skill added successfully!");
         setFormData({});
         setOpen(false);
         window.location.reload();
       } else {
-        alert("Failed to add skill");
+        alert("Failed to save skill");
       }
     } catch (e) {
       console.error(e);
-      alert("Error adding skill");
+      alert("Error saving skill");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDelete = async () => {
+      if (!confirm("Are you sure you want to delete this skill?")) return;
+      setLoading(true);
+      try {
+          const res = await fetch("/api/admin/skills", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: existingSkill?.id }),
+          });
+          if (res.ok) {
+              setOpen(false);
+              window.location.reload();
+          } else {
+              alert("Failed to delete skill");
+          }
+      } catch (e) {
+          console.error(e);
+          alert("Error deleting skill");
+      } finally {
+          setLoading(false);
+      }
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="icon" variant="outline" className="rounded-full w-8 h-8 ml-4">
-          <Plus size={16} />
-        </Button>
+        {trigger ? trigger : (
+            <Button size="icon" variant="outline" className="rounded-full w-8 h-8 ml-4">
+            <Plus size={16} />
+            </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add New Skill</DialogTitle>
+          <DialogTitle>{existingSkill ? "Edit Skill" : "Add New Skill"}</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-1 gap-4 py-4">
-          <Input name="name" placeholder="Skill Name" onChange={handleInputChange} />
+          <Input name="name" value={formData.name || ""} placeholder="Skill Name" onChange={handleInputChange} />
           
-          <Select value={formData.category} onValueChange={handleCategoryChange}>
+          <Select value={formData.category || ""} onValueChange={handleCategoryChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select Category" />
             </SelectTrigger>
@@ -89,9 +130,16 @@ export function AddSkillDialog() {
           
           <IconPicker value={formData.icon} onChange={handleIconChange} />
         </div>
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
-          {loading ? "Saving..." : "Save Skill"}
-        </Button>
+        <div className="flex gap-2">
+            <Button onClick={handleSubmit} disabled={loading} className="w-full">
+            {loading ? "Saving..." : "Save Skill"}
+            </Button>
+            {existingSkill && (
+                <Button onClick={handleDelete} disabled={loading} variant="destructive" size="icon">
+                    <Trash2 size={18} />
+                </Button>
+            )}
+        </div>
       </DialogContent>
     </Dialog>
   );

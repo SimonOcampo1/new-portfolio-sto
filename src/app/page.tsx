@@ -271,14 +271,16 @@ export default function Home() {
   
   // Merge static and dynamic skills
   const mergedSkills = useMemo(() => {
-    const tech = [...skills.technical[language]];
-    const acad = [...skills.academic[language]];
-    const lang = [...skills.languages[language]];
+    // Transform static skills to object format
+    const tech = skills.technical[language].map(name => ({ name }));
+    const acad = skills.academic[language].map(name => ({ name }));
+    const lang = skills.languages[language].map(name => ({ name }));
 
     dynamicData.skills.forEach((s: SkillData) => {
-        if (s.category === "technical") tech.push(s.name);
-        if (s.category === "academic") acad.push(s.name);
-        if (s.category === "languages") lang.push(s.name);
+        const item = { id: s.id, name: s.name, category: s.category, icon: s.icon };
+        if (s.category === "technical") tech.push(item);
+        if (s.category === "academic") acad.push(item);
+        if (s.category === "languages") lang.push(item);
     });
 
     return { technical: tech, academic: acad, languages: lang };

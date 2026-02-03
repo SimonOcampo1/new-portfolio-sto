@@ -180,6 +180,11 @@ body {
   overflow: auto;
 }
 
+body[data-scroll-locked] {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
 .nav-island-wrap {
   position: fixed;
   left: 0;
