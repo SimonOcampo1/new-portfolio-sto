@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ChevronLeft, ChevronRight, Code2 } from "lucide-react";
@@ -13,6 +13,66 @@ interface PaginatedSkillPanelProps {
   defaultIcon?: any;
   itemsPerPage?: number;
 }
+
+const SkillItem = ({ text, icon: Icon }: { text: string, icon: any }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const textRef = useRef<HTMLSpanElement>(null);
+    const [isOverflowing, setIsOverflowing] = useState(false);
+    const [duration, setDuration] = useState(10);
+  
+    useEffect(() => {
+      const checkOverflow = () => {
+        if (containerRef.current && textRef.current) {
+            const containerWidth = containerRef.current.offsetWidth;
+            const textWidth = textRef.current.offsetWidth;
+            
+            // If text is significantly larger (buffer of 2px)
+            if (textWidth > containerWidth) {
+              setIsOverflowing(true);
+              // Calculate duration based on width for consistent speed (approx 20px/s)
+              setDuration(textWidth / 20);
+            } else {
+                setIsOverflowing(false);
+            }
+          }
+      };
+
+      checkOverflow();
+      window.addEventListener('resize', checkOverflow);
+      return () => window.removeEventListener('resize', checkOverflow);
+    }, [text]);
+  
+    return (
+      <div className="skill-row text-xs py-1 flex items-center overflow-hidden w-full group select-none">
+          <span className="skill-row__icon w-6 h-6 min-w-[24px] shrink-0 flex items-center justify-center mr-2">
+              <Icon size={14} />
+          </span>
+          
+          <div className="flex-1 overflow-hidden relative" ref={containerRef}>
+            {isOverflowing ? (
+                 <div className="w-full overflow-hidden">
+                    <motion.div
+                        className="whitespace-nowrap flex w-fit"
+                        animate={{ x: ["0%", "-50%"] }}
+                        transition={{ 
+                            repeat: Infinity, 
+                            ease: "linear", 
+                            duration: Math.max(5, duration), // Minimum 5s duration
+                        }}
+                        // Pause on hover for readability
+                        whileHover={{ animationPlayState: "paused" }} 
+                    >
+                        <span ref={textRef} className="mr-8">{text}</span>
+                        <span>{text}</span>
+                    </motion.div>
+                 </div>
+            ) : (
+                 <span className="truncate block" ref={textRef}>{text}</span>
+            )}
+          </div>
+      </div>
+    )
+  }
 
 export function PaginatedSkillPanel({
   title,
@@ -77,21 +137,12 @@ export function PaginatedSkillPanel({
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.2 }}
-                className="grid grid-cols-2 gap-x-3 gap-y-2 content-start"
+                className="grid grid-cols-2 gap-x-4 gap-y-2 content-start"
             >
                 {currentItems.map((item, index) => {
-                    // Try to find icon by index matching (from original logic) or name
-                    // In the original code, it matched by index from a separate array.
-                    // Here we will try to accept a mapped icon or fallback.
                     const Icon = iconMap[item] || DefaultIcon;
-                    
                     return (
-                        <div key={item} className="skill-row text-xs py-1">
-                            <span className="skill-row__icon w-6 h-6 min-w-[24px]">
-                                <Icon size={12} />
-                            </span>
-                            <span className="truncate">{item}</span>
-                        </div>
+                        <SkillItem key={`${item}-${index}`} text={item} icon={Icon} />
                     );
                 })}
             </motion.div>
