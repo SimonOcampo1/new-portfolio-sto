@@ -180,7 +180,8 @@ body {
   overflow: auto;
 }
 
-body[data-scroll-locked] {
+body[data-scroll-locked],
+html:has(body[data-scroll-locked]) {
   overflow: hidden !important;
   overscroll-behavior: none;
 }
