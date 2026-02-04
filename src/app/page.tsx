@@ -865,9 +865,11 @@ export default function Home() {
                       {t.contact.description}
                     </motion.p>
                     <motion.div variants={sectionReveal} className="flex flex-wrap gap-3">
-                      <Button className="gap-2" onClick={copyEmail}>
-                        {copied ? <Check size={16} /> : <Mail size={16} />}
-                        {copied ? (language === "en" ? "Copied!" : "¡Copiado!") : t.contact.emailButton}
+                      <Button className="gap-2" asChild>
+                        <a href="mailto:ocamposimon1@gmail.com">
+                          <Mail size={16} />
+                          {t.contact.emailButton}
+                        </a>
                       </Button>
                       <Button variant="outline" className="gap-2" asChild>
                         <a
