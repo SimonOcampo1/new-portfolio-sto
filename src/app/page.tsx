@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "next-themes";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { supabaseClient } from "@/lib/supabase-client";
 import {
   AppWindow,
   Atom,
@@ -107,34 +107,51 @@ const skillIcons = [
 
 interface ProjectData {
   id: string;
-  titleEn: string;
-  titleEs: string;
-  shortDescEn: string;
-  shortDescEs: string;
-  fullDescEn: string;
-  fullDescEs: string;
-  year: string;
-  technologies: string;
+  titleEn?: string;
+  titleEs?: string;
+  shortDescEn?: string;
+  shortDescEs?: string;
+  fullDescEn?: string;
+  fullDescEs?: string;
+  year?: string;
+  technologies?: string | string[];
   liveUrl?: string;
   codeUrl?: string;
-  tagsEn: string;
-  tagsEs: string;
+  tagsEn?: string;
+  tagsEs?: string;
+  mediaImages?: string[];
+  mediaVideos?: string[];
+  title_en?: string;
+  title_es?: string;
+  short_desc_en?: string;
+  short_desc_es?: string;
+  full_desc_en?: string;
+  full_desc_es?: string;
+  live_url?: string | null;
+  code_url?: string | null;
+  tags_en?: string;
+  tags_es?: string;
+  media_images?: string[];
+  media_videos?: string[];
 }
 
 interface PublicationData {
   id: string;
-  title: string;
-  citationApa: string;
-  url: string;
-  lang: string;
-  tagsEn: string;
-  tagsEs: string;
+  title?: string;
+  citationApa?: string;
+  url?: string;
+  lang?: string;
+  tagsEn?: string;
+  tagsEs?: string;
+  citation_apa?: string;
+  tags_en?: string;
+  tags_es?: string;
 }
 
 interface SkillData {
   id: string;
-  name: string;
-  category: string;
+  name?: string;
+  category?: string;
   icon?: string;
 }
 
@@ -146,7 +163,7 @@ interface PortfolioData {
 
 export default function Home() {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const { data: session } = useSession();
+  const [isAdmin, setIsAdmin] = useState(false);
   const [language, setLanguage] = useState<LanguageKey>("en");
   const [mounted, setMounted] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -155,6 +172,8 @@ export default function Home() {
   const [publicationPage, setPublicationPage] = useState(0);
   const [dynamicData, setDynamicData] = useState<PortfolioData>({ projects: [], publications: [], skills: [] });
   const [activeProjectForm, setActiveProjectForm] = useState<null | any>(null);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [projectMediaIndex, setProjectMediaIndex] = useState(0);
   const [activePublicationForm, setActivePublicationForm] = useState<null | any>(null);
   const [activeSkillForm, setActiveSkillForm] = useState<null | any>(null);
   const [projectClosing, setProjectClosing] = useState(false);
@@ -193,7 +212,25 @@ export default function Home() {
     }, 220);
   };
 
-  const isAdmin = session?.user?.email === "ocamposimon1@gmail.com";
+  useEffect(() => {
+    let isMounted = true;
+    supabaseClient.auth.getUser().then(({ data }) => {
+      if (!isMounted) return;
+      setIsAdmin(data.user?.email === "ocamposimon1@gmail.com");
+    });
+
+    const {
+      data: { subscription },
+    } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
+      setIsAdmin(session?.user?.email === "ocamposimon1@gmail.com");
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const copyEmail = () => {
     navigator.clipboard.writeText("ocamposimon1@gmail.com");
@@ -303,6 +340,10 @@ export default function Home() {
   }, [isMobile]);
 
   useEffect(() => {
+    setProjectMediaIndex(0);
+  }, [selectedProject]);
+
+  useEffect(() => {
     const updateScroll = () => {
       // If the body is scroll-locked by a dialog/modal, do not override overflow styles.
       // Radix UI adds 'data-scroll-locked' to the body.
@@ -355,23 +396,54 @@ export default function Home() {
   
   // Merge static and dynamic projects
   const mergedProjects = useMemo(() => {
-    const dynamicProjects = dynamicData.projects.map((p: ProjectData) => ({
-      id: p.id,
-      title: { en: p.titleEn, es: p.titleEs },
-      shortDescription: { en: p.shortDescEn, es: p.shortDescEs },
-      fullDescription: { en: p.fullDescEn, es: p.fullDescEs },
-      year: p.year,
-      technologies: p.technologies ? p.technologies.split(",") : [],
-      liveUrl: p.liveUrl || "#",
-      codeUrl: p.codeUrl || "#",
-      image: { en: [], es: [] }, // Default empty for now
-      tags: { 
-        en: p.tagsEn ? p.tagsEn.split(",") : [],
-        es: p.tagsEs ? p.tagsEs.split(",") : []
-      },
-      isDynamic: true,
-      isEditable: true
-    }));
+    const dynamicProjects = dynamicData.projects.map((p: ProjectData) => {
+      const mediaImages = Array.isArray(p.mediaImages)
+        ? p.mediaImages
+        : Array.isArray(p.media_images)
+          ? p.media_images
+          : [];
+      const mediaVideos = Array.isArray(p.mediaVideos)
+        ? p.mediaVideos
+        : Array.isArray(p.media_videos)
+          ? p.media_videos
+          : [];
+      const titleEn = p.titleEn ?? p.title_en ?? "";
+      const titleEs = p.titleEs ?? p.title_es ?? "";
+      const shortDescEn = p.shortDescEn ?? p.short_desc_en ?? "";
+      const shortDescEs = p.shortDescEs ?? p.short_desc_es ?? "";
+      const fullDescEn = p.fullDescEn ?? p.full_desc_en ?? "";
+      const fullDescEs = p.fullDescEs ?? p.full_desc_es ?? "";
+      const liveUrl = p.liveUrl ?? p.live_url ?? "#";
+      const codeUrl = p.codeUrl ?? p.code_url ?? "#";
+      const technologies = typeof p.technologies === "string"
+        ? p.technologies
+        : Array.isArray(p.technologies)
+          ? (p.technologies as string[]).join(",")
+          : "";
+      const tagsEn = p.tagsEn ?? p.tags_en ?? "";
+      const tagsEs = p.tagsEs ?? p.tags_es ?? "";
+      return {
+        id: p.id,
+        title: { en: titleEn, es: titleEs },
+        shortDescription: { en: shortDescEn, es: shortDescEs },
+        fullDescription: { en: fullDescEn, es: fullDescEs },
+        year: p.year,
+        technologies: technologies ? technologies.split(",") : [],
+        liveUrl,
+        codeUrl,
+        image: { en: mediaImages, es: mediaImages },
+        video: mediaVideos,
+        additionalImages: [],
+        mediaImages,
+        mediaVideos,
+        tags: { 
+          en: tagsEn ? tagsEn.split(",") : [],
+          es: tagsEs ? tagsEs.split(",") : []
+        },
+        isDynamic: true,
+        isEditable: true
+      };
+    });
     const staticProjects = projects.map((p) => ({
       ...p,
       isDynamic: false,
@@ -381,18 +453,70 @@ export default function Home() {
   }, [dynamicData.projects]);
 
   const currentProjects = mergedProjects;
+  const viewProjectLabel = t.projects.viewProject;
+  const isValidUrl = (url?: string) => Boolean(url && url !== "#" && url !== "/");
+
+  const openProject = (project: any) => {
+    setActiveProjectForm(null);
+    setSelectedProject(project);
+  };
+
+  const closeProjectDetails = () => {
+    setSelectedProject(null);
+  };
+
+  const getProjectMedia = (project: any) => {
+    if (!project) return [];
+    const images = new Set<string>();
+    const videos = new Set<string>();
+
+    const primaryImages = project.image?.[language] || project.image?.en || [];
+    const secondaryImages = project.additionalImages || [];
+    const mediaImages = project.mediaImages || [];
+    const mediaVideos = project.mediaVideos || [];
+    const projectVideos = project.video || [];
+
+    [...primaryImages, ...secondaryImages, ...mediaImages].forEach((url: string) => {
+      if (url) images.add(url);
+    });
+
+    [...mediaVideos, ...projectVideos].forEach((url: string) => {
+      if (url) videos.add(url);
+    });
+
+    const mediaItems = [
+      ...Array.from(images).map((url) => ({ type: "image" as const, url })),
+      ...Array.from(videos).map((url) => ({ type: "video" as const, url })),
+    ];
+
+    return mediaItems;
+  };
+
+  const projectMedia = selectedProject ? getProjectMedia(selectedProject) : [];
+  const activeMedia = projectMedia[projectMediaIndex];
+  const hasMedia = projectMedia.length > 0;
+
+  const goToPrevMedia = () => {
+    if (!projectMedia.length) return;
+    setProjectMediaIndex((prev) => (prev - 1 + projectMedia.length) % projectMedia.length);
+  };
+
+  const goToNextMedia = () => {
+    if (!projectMedia.length) return;
+    setProjectMediaIndex((prev) => (prev + 1) % projectMedia.length);
+  };
 
   // Merge static and dynamic publications
   const mergedPublications = useMemo(() => {
     const dynamicPubs = dynamicData.publications.map((p: PublicationData) => ({
       id: p.id,
-      title: p.title,
-      citationApa: p.citationApa,
-      url: p.url,
-      lang: p.lang,
+      title: p.title ?? "",
+      citationApa: p.citationApa ?? p.citation_apa ?? "",
+      url: p.url ?? "",
+      lang: p.lang ?? "",
       tags: {
-        en: p.tagsEn ? p.tagsEn.split(",") : [],
-        es: p.tagsEs ? p.tagsEs.split(",") : []
+        en: p.tagsEn || p.tags_en ? (p.tagsEn || p.tags_en || "").split(",") : [],
+        es: p.tagsEs || p.tags_es ? (p.tagsEs || p.tags_es || "").split(",") : []
       },
       isDynamic: true,
       isEditable: true
@@ -420,10 +544,11 @@ export default function Home() {
     const lang = skills.languages[language].map(name => ({ name }));
 
     dynamicData.skills.forEach((s: SkillData) => {
-        const item = { id: s.id, name: s.name, category: s.category, icon: s.icon };
-        if (s.category === "technical") tech.push(item);
-        if (s.category === "academic") acad.push(item);
-        if (s.category === "languages") lang.push(item);
+      if (!s.name || !s.category) return;
+      const item = { id: s.id, name: s.name, category: s.category, icon: s.icon };
+      if (s.category === "technical") tech.push(item);
+      if (s.category === "academic") acad.push(item);
+      if (s.category === "languages") lang.push(item);
     });
 
     return { technical: tech, academic: acad, languages: lang };
@@ -435,7 +560,7 @@ export default function Home() {
     
     const dynamicMap: Record<string, any> = {};
     dynamicData.skills.forEach((s: SkillData) => {
-      if (s.icon && lucideIconMap[s.icon]) {
+      if (s.name && s.icon && lucideIconMap[s.icon]) {
         dynamicMap[s.name] = lucideIconMap[s.icon];
       }
     });
@@ -658,67 +783,226 @@ export default function Home() {
                       initialProject={activeProjectForm?.id ? activeProjectForm : undefined}
                       onCancel={closeProjectForm}
                       onSaved={closeProjectForm}
+                      language={language}
                     />
                   </motion.div>
                 )}
-                <div className="project-list">
-                  {currentProjects.map((project, index) => (
+                <AnimatePresence mode="wait">
+                  {selectedProject ? (
                     <motion.div
-                      key={project.id}
-                      initial="hidden"
-                      animate={getSlideState(1)}
-                      variants={sectionReveal}
-                      transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
+                      key="project-details"
+                      initial={{ opacity: 0, y: 18 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      transition={{ duration: 0.35, ease: easing }}
+                      className="project-details"
                     >
-                      <div className="project-row group relative">
-                        <div className="project-row__icon">
-                          <Code2 size={18} />
+                      <div className="project-details__header">
+                        <Button variant="ghost" className="gap-2" onClick={closeProjectDetails}>
+                          <ChevronLeft size={16} />
+                          {language === "en" ? "Back to projects" : "Volver a proyectos"}
+                        </Button>
+                        {isAdmin && (selectedProject as any).isEditable && (
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => setActiveProjectForm(selectedProject)}
+                            aria-label="Edit project"
+                          >
+                            <Pencil size={14} />
+                          </Button>
+                        )}
+                      </div>
+
+                      <div className="project-details__grid">
+                        <div className="project-details__content">
+                          <div>
+                            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                              {selectedProject.year}
+                            </p>
+                            <h3 className="text-2xl font-semibold">
+                              {selectedProject.title[language]}
+                            </h3>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {selectedProject.fullDescription[language]}
+                          </p>
+
+                          <div>
+                            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">
+                              {language === "en" ? "Tech Stack" : "Tecnologias"}
+                            </p>
+                            <div className="project-details__tags">
+                              {selectedProject.technologies.map((tech: string) => (
+                                <Badge key={tech} variant="secondary">
+                                  {tech}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="project-details__links">
+                            {isValidUrl(selectedProject.codeUrl) && (
+                              <Button asChild variant="outline" className="gap-2">
+                                <a href={selectedProject.codeUrl} target="_blank" rel="noreferrer">
+                                  <Github size={16} /> {t.projects.viewCode}
+                                </a>
+                              </Button>
+                            )}
+                            {isValidUrl(selectedProject.liveUrl) && (
+                              <Button asChild className="gap-2">
+                                <a href={selectedProject.liveUrl} target="_blank" rel="noreferrer">
+                                  <Globe size={16} /> {viewProjectLabel}
+                                </a>
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                        <div className="project-row__content">
-                          <div className="project-row__header">
-                            <div>
-                              <h3 className="text-base font-semibold">
-                                {project.title[language]}
-                              </h3>
-                              <p className="text-xs text-muted-foreground">
-                                {project.year}
-                              </p>
-                            </div>
-                            <Badge variant="secondary">{project.technologies[0]}</Badge>
-                          </div>
-                        <p className="project-row__summary">
-                          {project.shortDescription[language]}
-                        </p>
-                        <div className="project-row__meta">
-                          <div className="project-row__actions">
-                            <Button asChild size="sm" variant="ghost">
-                              <a href={project.codeUrl} target="_blank" rel="noreferrer">
-                                {t.projects.viewCode}
-                                </a>
-                              </Button>
-                              <Button asChild size="sm" variant="outline">
-                                <a href={project.liveUrl} target="_blank" rel="noreferrer">
-                                  {t.projects.viewProject}
-                                </a>
-                              </Button>
-                              {isAdmin && (project as any).isEditable && (
-                                <Button
-                                  variant="secondary"
-                                  size="icon"
-                                  className="h-8 w-8 shadow-sm"
-                                  onClick={() => setActiveProjectForm(project)}
-                                  aria-label="Edit project"
-                                >
-                                  <Pencil size={14} />
+
+                        <div className="project-details__media">
+                          {hasMedia ? (
+                            <div className="project-details__carousel">
+                              <div className="project-details__media-frame">
+                                {activeMedia?.type === "video" ? (
+                                  <video
+                                    key={activeMedia.url}
+                                    src={activeMedia.url}
+                                    className="project-details__media-item"
+                                    controls
+                                    playsInline
+                                  />
+                                ) : (
+                                  <Image
+                                    key={activeMedia?.url}
+                                    src={activeMedia?.url || "/vercel.svg"}
+                                    alt={selectedProject.title[language]}
+                                    width={960}
+                                    height={540}
+                                    className="project-details__media-item"
+                                    unoptimized
+                                  />
+                                )}
+                              </div>
+                              <div className="project-details__carousel-controls">
+                                <Button size="icon" variant="ghost" onClick={goToPrevMedia}>
+                                  <ChevronLeft size={16} />
                                 </Button>
-                              )}
+                                <span className="text-xs text-muted-foreground">
+                                  {projectMediaIndex + 1} / {projectMedia.length}
+                                </span>
+                                <Button size="icon" variant="ghost" onClick={goToNextMedia}>
+                                  <ChevronRight size={16} />
+                                </Button>
+                              </div>
+                              <div className="project-details__thumbnails">
+                                {projectMedia.map((item, index) => (
+                                  <button
+                                    key={`${item.type}-${item.url}`}
+                                    type="button"
+                                    className={`project-details__thumbnail ${index === projectMediaIndex ? "is-active" : ""}`}
+                                    onClick={() => setProjectMediaIndex(index)}
+                                    aria-label={`Media ${index + 1}`}
+                                  >
+                                    {item.type === "video" ? (
+                                      <div className="project-details__thumbnail-video">
+                                        <span>Video</span>
+                                      </div>
+                                    ) : (
+                                      <Image
+                                        src={item.url}
+                                        alt={selectedProject.title[language]}
+                                        width={140}
+                                        height={90}
+                                        unoptimized
+                                      />
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                          </div>
+                          ) : (
+                            <div className="project-details__empty">
+                              {language === "en" ? "No media added yet." : "Sin contenido multimedia."}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>
-                  ))}
-                </div>
+                  ) : (
+                    <motion.div
+                      key="project-list"
+                      initial={{ opacity: 0, y: 18 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      transition={{ duration: 0.35, ease: easing }}
+                      className="project-list"
+                    >
+                      {currentProjects.map((project, index) => (
+                        <motion.div
+                          key={project.id}
+                          initial="hidden"
+                          animate={getSlideState(1)}
+                          variants={sectionReveal}
+                          transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
+                        >
+                          <div className="project-row group relative">
+                            <div className="project-row__icon">
+                              <Code2 size={18} />
+                            </div>
+                            <div className="project-row__content">
+                              <div className="project-row__header">
+                                <div>
+                                  <h3 className="text-base font-semibold">
+                                    {project.title[language]}
+                                  </h3>
+                                  <p className="text-xs text-muted-foreground">
+                                    {project.year}
+                                  </p>
+                                </div>
+                                <div className="project-row__tags">
+                                  {project.technologies.map((tech: string) => (
+                                    <Badge key={tech} variant="secondary">
+                                      {tech}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            <p className="project-row__summary">
+                              {project.shortDescription[language]}
+                            </p>
+                            <div className="project-row__meta">
+                              <div className="project-row__actions">
+                                <Button size="sm" variant="ghost" onClick={() => openProject(project)}>
+                                  {viewProjectLabel}
+                                </Button>
+                                {isValidUrl(project.codeUrl) && (
+                                  <Button asChild size="sm" variant="outline">
+                                    <a href={project.codeUrl} target="_blank" rel="noreferrer">
+                                      {t.projects.viewCode}
+                                    </a>
+                                  </Button>
+                                )}
+                                {isAdmin && (project as any).isEditable && (
+                                  <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="h-8 w-8 shadow-sm"
+                                    onClick={() => setActiveProjectForm(project)}
+                                    aria-label="Edit project"
+                                  >
+                                    <Pencil size={14} />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </section>
 
@@ -778,11 +1062,12 @@ export default function Home() {
                         transition={{ duration: 0.3, ease: easing }}
                         className={publicationClosing ? "admin-form-wrapper admin-form-wrapper--closing" : "admin-form-wrapper"}
                       >
-                        <PublicationForm
-                          initialPublication={activePublicationForm?.id ? activePublicationForm : undefined}
-                          onCancel={closePublicationForm}
-                          onSaved={closePublicationForm}
-                        />
+                    <PublicationForm
+                      initialPublication={activePublicationForm?.id ? activePublicationForm : undefined}
+                      onCancel={closePublicationForm}
+                      onSaved={closePublicationForm}
+                      language={language}
+                    />
                       </motion.div>
                     )}
                     <div className="publication-list relative min-h-[300px]">
@@ -828,7 +1113,7 @@ export default function Home() {
                               </p>
                               <div className="publication-row__meta">
                                 <Badge variant="outline" className="text-[0.6rem] px-1 py-0 h-4 border-foreground/20 text-muted-foreground">
-                                  {publication.lang.toUpperCase()}
+                                  {(publication.lang || "").toUpperCase()}
                                 </Badge>
                                 {publication.tags[language]?.map((tag: string) => (
                                   <span key={tag} className="publication-row__tag">
@@ -921,6 +1206,7 @@ export default function Home() {
                       initialSkill={activeSkillForm?.id ? activeSkillForm : undefined}
                       onCancel={closeSkillForm}
                       onSaved={closeSkillForm}
+                      language={language}
                     />
                   </motion.div>
                 )}
@@ -995,12 +1281,22 @@ export default function Home() {
                     
                     {/* Admin Access Link */}
                      <div className="pt-8 flex justify-start">
-                         <button 
-                            onClick={() => isAdmin ? signOut() : signIn("google")}
-                            className="text-[0.6rem] text-muted-foreground/20 hover:text-muted-foreground transition-colors uppercase tracking-widest"
-                         >
-                            {isAdmin ? "Admin Logout" : "Admin Access"}
-                         </button>
+                          <button 
+                             onClick={() => {
+                               if (isAdmin) {
+                                 supabaseClient.auth.signOut();
+                                 return;
+                               }
+
+                               supabaseClient.auth.signInWithOAuth({
+                                 provider: "google",
+                                 options: { redirectTo: `${window.location.origin}/auth/callback` },
+                               });
+                             }}
+                             className="text-[0.6rem] text-muted-foreground/20 hover:text-muted-foreground transition-colors uppercase tracking-widest"
+                          >
+                             {isAdmin ? "Admin Logout" : "Admin Access"}
+                          </button>
                      </div>
 
                   </motion.div>

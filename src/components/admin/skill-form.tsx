@@ -23,14 +23,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
+import { supabaseClient } from "@/lib/supabase-client";
 
 interface SkillFormProps {
   initialSkill?: any;
   onCancel: () => void;
   onSaved?: () => void;
+  language: "en" | "es";
 }
 
-export function SkillForm({ initialSkill, onCancel, onSaved }: SkillFormProps) {
+export function SkillForm({ initialSkill, onCancel, onSaved, language }: SkillFormProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -64,9 +66,10 @@ export function SkillForm({ initialSkill, onCancel, onSaved }: SkillFormProps) {
 
   const validate = () => {
     const nextErrors: Record<string, string> = {};
-    if (!formData.name?.trim()) nextErrors.name = "Required";
-    if (!formData.category?.trim()) nextErrors.category = "Required";
-    if (!formData.icon?.trim()) nextErrors.icon = "Required";
+    const requiredLabel = language === "es" ? "Requerido" : "Required";
+    if (!formData.name?.trim()) nextErrors.name = requiredLabel;
+    if (!formData.category?.trim()) nextErrors.category = requiredLabel;
+    if (!formData.icon?.trim()) nextErrors.icon = requiredLabel;
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -79,22 +82,29 @@ export function SkillForm({ initialSkill, onCancel, onSaved }: SkillFormProps) {
       const url = "/api/admin/skills";
       const method = isEditing ? "PUT" : "POST";
 
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const token = sessionData.session?.access_token;
+
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify(formData),
       });
 
       if (res.ok) {
+        toast.success(language === "es" ? "Habilidad guardada" : "Skill saved");
         onSaved?.();
-        toast.success("Skill saved")
-        window.location.reload();
+        setTimeout(() => window.location.reload(), 400);
       } else {
-        toast.error("Failed to save skill")
+        const message = await res.text();
+        toast.error(message || (language === "es" ? "Error al guardar habilidad" : "Failed to save skill"));
       }
     } catch (e) {
       console.error(e);
-      toast.error("Error saving skill")
+      toast.error(language === "es" ? "Error al guardar habilidad" : "Error saving skill")
     } finally {
       setLoading(false);
     }
@@ -103,22 +113,29 @@ export function SkillForm({ initialSkill, onCancel, onSaved }: SkillFormProps) {
   const handleDelete = async () => {
     setLoading(true);
     try {
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const token = sessionData.session?.access_token;
+
       const res = await fetch("/api/admin/skills", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ id: initialSkill?.id }),
       });
 
       if (res.ok) {
+        toast.success(language === "es" ? "Habilidad eliminada" : "Skill deleted");
         onSaved?.();
-        toast.success("Skill deleted")
-        window.location.reload();
+        setTimeout(() => window.location.reload(), 400);
       } else {
-        toast.error("Failed to delete skill")
+        const message = await res.text();
+        toast.error(message || (language === "es" ? "Error al eliminar habilidad" : "Failed to delete skill"));
       }
     } catch (e) {
       console.error(e);
-      toast.error("Error deleting skill")
+      toast.error(language === "es" ? "Error al eliminar habilidad" : "Error deleting skill")
     } finally {
       setLoading(false);
     }
@@ -127,23 +144,25 @@ export function SkillForm({ initialSkill, onCancel, onSaved }: SkillFormProps) {
   return (
     <div className="admin-form-card">
       <div className="admin-form-header">
-        <h3 className="admin-form-title">{isEditing ? "Edit Skill" : "Add New Skill"}</h3>
+        <h3 className="admin-form-title">
+          {isEditing ? (language === "es" ? "Editar Habilidad" : "Edit Skill") : (language === "es" ? "Agregar Habilidad" : "Add New Skill")}
+        </h3>
       </div>
       <div className="admin-form-grid admin-form-grid--single">
         <div>
-          <Input name="name" value={formData.name || ""} placeholder="Skill Name" onChange={handleInputChange} />
+          <Input name="name" value={formData.name || ""} placeholder={language === "es" ? "Nombre" : "Skill Name"} onChange={handleInputChange} />
           {errors.name && <span className="admin-form-error">{errors.name}</span>}
         </div>
 
         <div>
           <Select value={formData.category || ""} onValueChange={handleCategoryChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Select Category" />
+          <SelectValue placeholder={language === "es" ? "Seleccionar categoria" : "Select Category"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="technical">Technical</SelectItem>
-              <SelectItem value="academic">Academic</SelectItem>
-              <SelectItem value="languages">Languages</SelectItem>
+              <SelectItem value="technical">{language === "es" ? "Tecnicas" : "Technical"}</SelectItem>
+              <SelectItem value="academic">{language === "es" ? "Academicas" : "Academic"}</SelectItem>
+              <SelectItem value="languages">{language === "es" ? "Idiomas" : "Languages"}</SelectItem>
             </SelectContent>
           </Select>
           {errors.category && <span className="admin-form-error">{errors.category}</span>}
@@ -159,21 +178,27 @@ export function SkillForm({ initialSkill, onCancel, onSaved }: SkillFormProps) {
           <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <Button onClick={() => setConfirmOpen(true)} disabled={loading} variant="destructive">
               <Trash2 size={18} className="mr-2" />
-              Delete
+              {language === "es" ? "Eliminar" : "Delete"}
             </Button>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete skill?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. The skill will be permanently removed.
+                <AlertDialogTitle>
+                  {language === "es" ? "Eliminar habilidad?" : "Delete skill?"}
+                </AlertDialogTitle>
+                <AlertDialogDescription className="admin-dialog-description">
+                  {language === "es"
+                    ? "Esta accion no se puede deshacer. La habilidad se eliminara permanentemente."
+                    : "This action cannot be undone. The skill will be permanently removed."}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel asChild>
-                  <Button variant="outline">Cancel</Button>
+                  <Button variant="outline">{language === "es" ? "Cancelar" : "Cancel"}</Button>
                 </AlertDialogCancel>
                 <AlertDialogAction asChild>
-                  <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+                  <Button variant="destructive" onClick={handleDelete}>
+                    {language === "es" ? "Eliminar" : "Delete"}
+                  </Button>
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -181,10 +206,10 @@ export function SkillForm({ initialSkill, onCancel, onSaved }: SkillFormProps) {
         )}
         <div className="admin-form-actions__right">
           <Button variant="outline" onClick={onCancel} disabled={loading}>
-            Cancel
+            {language === "es" ? "Cancelar" : "Cancel"}
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "Saving..." : "Save Skill"}
+            {loading ? (language === "es" ? "Guardando..." : "Saving...") : (language === "es" ? "Guardar Habilidad" : "Save Skill")}
           </Button>
         </div>
       </div>
