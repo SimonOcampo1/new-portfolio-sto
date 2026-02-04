@@ -46,9 +46,9 @@ import { allPublications } from "@/data/publications";
 import { skills } from "@/data/skills";
 import { translations } from "@/data/translations";
 import Link from "next/link";
-import { AddProjectDialog } from "@/components/admin/add-project-dialog";
-import { AddPublicationDialog } from "@/components/admin/add-publication-dialog";
-import { AddSkillDialog } from "@/components/admin/add-skill-dialog";
+import { ProjectForm } from "@/components/admin/project-form";
+import { PublicationForm } from "@/components/admin/publication-form";
+import { SkillForm } from "@/components/admin/skill-form";
 import { iconMap as lucideIconMap } from "@/lib/icons";
 
 type LanguageKey = "en" | "es";
@@ -152,6 +152,9 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [publicationPage, setPublicationPage] = useState(0);
   const [dynamicData, setDynamicData] = useState<PortfolioData>({ projects: [], publications: [], skills: [] });
+  const [activeProjectForm, setActiveProjectForm] = useState<null | any>(null);
+  const [activePublicationForm, setActivePublicationForm] = useState<null | any>(null);
+  const [activeSkillForm, setActiveSkillForm] = useState<null | any>(null);
 
   const isAdmin = session?.user?.email === "ocamposimon1@gmail.com";
 
@@ -486,7 +489,17 @@ export default function Home() {
                         <h2 className="font-display text-3xl">
                         {language === "en" ? "Featured Works" : "Trabajos Destacados"}
                         </h2>
-                        {isAdmin && <AddProjectDialog />}
+                        {isAdmin && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => setActiveProjectForm(activeProjectForm ? null : {})}
+                            aria-label="Add project"
+                          >
+                            <span className="text-lg leading-none">+</span>
+                          </Button>
+                        )}
                     </div>
                   </motion.div>
                   <motion.div variants={sectionReveal}>
@@ -495,6 +508,20 @@ export default function Home() {
                     </Button>
                   </motion.div>
                 </motion.div>
+                {isAdmin && activeProjectForm !== null && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, ease: easing }}
+                    className="admin-form-wrapper"
+                  >
+                    <ProjectForm
+                      initialProject={activeProjectForm?.id ? activeProjectForm : undefined}
+                      onCancel={() => setActiveProjectForm(null)}
+                      onSaved={() => setActiveProjectForm(null)}
+                    />
+                  </motion.div>
+                )}
                 <div className="project-list">
                   {currentProjects.map((project, index) => (
                     <motion.div
@@ -507,7 +534,15 @@ export default function Home() {
                       <div className="project-row group relative">
                         {isAdmin && (project as any).isEditable && (
                             <div className="absolute right-2 top-2 z-10">
-                                <AddProjectDialog existingProject={project} trigger={<Button variant="secondary" size="icon" className="h-8 w-8 shadow-sm"><Pencil size={14} /></Button>} />
+                              <Button
+                                variant="secondary"
+                                size="icon"
+                                className="h-8 w-8 shadow-sm"
+                                onClick={() => setActiveProjectForm(project)}
+                                aria-label="Edit project"
+                              >
+                                <Pencil size={14} />
+                              </Button>
                             </div>
                         )}
                         <div className="project-row__icon">
@@ -570,7 +605,17 @@ export default function Home() {
                             ? "Academic Publications"
                             : "Publicaciones Académicas"}
                         </h2>
-                        {isAdmin && <AddPublicationDialog />}
+                        {isAdmin && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => setActivePublicationForm(activePublicationForm ? null : {})}
+                            aria-label="Add publication"
+                          >
+                            <span className="text-lg leading-none">+</span>
+                          </Button>
+                        )}
                       </div>
                     </motion.div>
                     <motion.p variants={sectionReveal} className="text-muted-foreground">
@@ -586,8 +631,22 @@ export default function Home() {
                       </Button>
                     </motion.div>
                   </motion.div>
-                  
+
                   <div className="flex flex-col gap-4">
+                    {isAdmin && activePublicationForm !== null && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, ease: easing }}
+                        className="admin-form-wrapper"
+                      >
+                        <PublicationForm
+                          initialPublication={activePublicationForm?.id ? activePublicationForm : undefined}
+                          onCancel={() => setActivePublicationForm(null)}
+                          onSaved={() => setActivePublicationForm(null)}
+                        />
+                      </motion.div>
+                    )}
                     <div className="publication-list relative min-h-[300px]">
                       {currentPublications.map((publication, index) => (
                         <motion.div
@@ -598,11 +657,6 @@ export default function Home() {
                           transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
                         >
                           <div className="publication-row group relative">
-                            {isAdmin && (publication as any).isEditable && (
-                                <div className="absolute right-2 top-2 z-10">
-                                    <AddPublicationDialog existingPublication={publication} trigger={<Button variant="secondary" size="icon" className="h-8 w-8 shadow-sm"><Pencil size={14} /></Button>} />
-                                </div>
-                            )}
                             <div className="publication-row__icon">
                               <BookOpen size={18} />
                             </div>
@@ -633,6 +687,19 @@ export default function Home() {
                                   </span>
                                 ))}
                               </div>
+                              {isAdmin && (publication as any).isEditable && (
+                                <div className="publication-row__edit">
+                                  <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="h-8 w-8 shadow-sm"
+                                    onClick={() => setActivePublicationForm(publication)}
+                                    aria-label="Edit publication"
+                                  >
+                                    <Pencil size={14} />
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </motion.div>
@@ -693,9 +760,33 @@ export default function Home() {
                     <motion.h2 variants={sectionReveal} className="font-display text-3xl">
                         {language === "en" ? "My Skills" : "Mis Habilidades"}
                     </motion.h2>
-                    {isAdmin && <AddSkillDialog />}
+                    {isAdmin && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setActiveSkillForm(activeSkillForm ? null : {})}
+                        aria-label="Add skill"
+                      >
+                        <span className="text-lg leading-none">+</span>
+                      </Button>
+                    )}
                   </div>
                 </motion.div>
+                {isAdmin && activeSkillForm !== null && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, ease: easing }}
+                    className="admin-form-wrapper"
+                  >
+                    <SkillForm
+                      initialSkill={activeSkillForm?.id ? activeSkillForm : undefined}
+                      onCancel={() => setActiveSkillForm(null)}
+                      onSaved={() => setActiveSkillForm(null)}
+                    />
+                  </motion.div>
+                )}
                 <div className="skills-grid">
                   <PaginatedSkillPanel 
                     title={t.skills.technical} 
@@ -703,6 +794,7 @@ export default function Home() {
                     itemsPerPage={10} 
                     iconMap={mergedIconMap}
                     isAdmin={isAdmin}
+                    onEditSkill={(skill) => setActiveSkillForm(skill)}
                   />
                   <PaginatedSkillPanel 
                     title={t.skills.academic} 
@@ -710,6 +802,7 @@ export default function Home() {
                     itemsPerPage={10} 
                     defaultIcon={GraduationCap}
                     isAdmin={isAdmin}
+                    onEditSkill={(skill) => setActiveSkillForm(skill)}
                   />
                   <PaginatedSkillPanel 
                     title={t.skills.languages} 
@@ -717,6 +810,7 @@ export default function Home() {
                     itemsPerPage={10} 
                     defaultIcon={Globe}
                     isAdmin={isAdmin}
+                    onEditSkill={(skill) => setActiveSkillForm(skill)}
                   />
                 </div>
               </div>

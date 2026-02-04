@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ChevronLeft, ChevronRight, Code2, Pencil, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Code2, Pencil } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AddSkillDialog } from "@/components/admin/add-skill-dialog";
 
 export interface SkillItemData {
     id?: string;
@@ -21,9 +20,10 @@ interface PaginatedSkillPanelProps {
   defaultIcon?: any;
   itemsPerPage?: number;
   isAdmin?: boolean;
+  onEditSkill?: (skill: SkillItemData) => void;
 }
 
-const SkillItem = ({ item, icon: Icon, isAdmin }: { item: string | SkillItemData, icon: any, isAdmin?: boolean }) => {
+const SkillItem = ({ item, icon: Icon, isAdmin, onEdit }: { item: string | SkillItemData, icon: any, isAdmin?: boolean, onEdit?: (skill: SkillItemData) => void }) => {
   const text = typeof item === 'string' ? item : item.name;
   const isDynamic = typeof item !== 'string' && !!item.id;
   
@@ -39,7 +39,14 @@ const SkillItem = ({ item, icon: Icon, isAdmin }: { item: string | SkillItemData
         
         {isAdmin && isDynamic && typeof item !== 'string' && (
             <div className="flex items-center gap-1 ml-2">
-                 <AddSkillDialog existingSkill={item as any} trigger={<Button variant="ghost" size="icon" className="h-6 w-6 text-primary"><Pencil size={12} /></Button>} />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-primary"
+                onClick={() => onEdit?.(item as SkillItemData)}
+              >
+                <Pencil size={12} />
+              </Button>
             </div>
         )}
     </div>
@@ -53,6 +60,7 @@ export function PaginatedSkillPanel({
   defaultIcon: DefaultIcon = Code2,
   itemsPerPage = 10,
   isAdmin = false,
+  onEditSkill,
 }: PaginatedSkillPanelProps) {
   const [page, setPage] = useState(0);
   const totalPages = Math.ceil(items.length / itemsPerPage);
@@ -116,7 +124,7 @@ export function PaginatedSkillPanel({
                     const text = typeof item === 'string' ? item : item.name;
                     const Icon = iconMap[text] || DefaultIcon;
                     return (
-                        <SkillItem key={`${text}-${index}`} item={item} icon={Icon} isAdmin={isAdmin} />
+                        <SkillItem key={`${text}-${index}`} item={item} icon={Icon} isAdmin={isAdmin} onEdit={onEditSkill} />
                     );
                 })}
             </motion.div>

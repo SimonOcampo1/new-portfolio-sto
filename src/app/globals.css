@@ -463,6 +463,12 @@ section {
   border-bottom: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
 }
 
+.publication-row__edit {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
 .publication-row__icon {
   width: 34px;
   height: 34px;
@@ -485,6 +491,7 @@ section {
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
+  flex-wrap: wrap;
 }
 
 .publication-row__summary {
@@ -496,6 +503,78 @@ section {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+}
+
+.admin-form-wrapper {
+  margin-bottom: 1.5rem;
+}
+
+.admin-form-card {
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--background) 96%, transparent);
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.25rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.admin-form-card .grid,
+.admin-form-card input,
+.admin-form-card textarea,
+.admin-form-card select {
+  max-width: 100%;
+}
+
+.admin-form-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-form-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.admin-form-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.admin-form-span {
+  grid-column: 1 / -1;
+}
+
+.admin-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  padding-top: 1rem;
+}
+
+.admin-form-actions__right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-form-error {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #c2410c;
 }
 
 .publication-row__tag {
@@ -525,6 +604,10 @@ section {
 
   .skills-grid {
     grid-template-columns: 1fr;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
