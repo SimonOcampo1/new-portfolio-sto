@@ -103,7 +103,7 @@ export function AddPublicationDialog({ existingPublication, trigger }: AddPublic
             </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto overscroll-contain">
         <DialogHeader>
           <DialogTitle>{existingPublication ? "Edit Publication" : "Add New Publication"}</DialogTitle>
         </DialogHeader>

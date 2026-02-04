@@ -118,7 +118,7 @@ export function AddProjectDialog({ existingProject, trigger }: AddProjectDialogP
             </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain">
         <DialogHeader>
           <DialogTitle>{existingProject ? "Edit Project" : "Add New Project"}</DialogTitle>
         </DialogHeader>

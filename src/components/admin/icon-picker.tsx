@@ -62,7 +62,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" side="bottom" align="start">
         <Command shouldFilter={false}>
           <CommandInput placeholder="Search icon..." value={search} onValueChange={setSearch} />
-          <CommandList className="max-h-[200px] overflow-y-auto scrollbar-thin">
+          <CommandList className="max-h-[200px] overflow-y-auto scrollbar-thin overscroll-contain">
             {filteredIcons.length === 0 && <CommandEmpty>No icon found.</CommandEmpty>}
             <CommandGroup>
               {filteredIcons.map((name) => {

@@ -247,9 +247,15 @@ export default function Home() {
         en: p.tagsEn ? p.tagsEn.split(",") : [],
         es: p.tagsEs ? p.tagsEs.split(",") : []
       },
-      isDynamic: true
+      isDynamic: true,
+      isEditable: true
     }));
-    return [...dynamicProjects, ...projects];
+    const staticProjects = projects.map((p) => ({
+      ...p,
+      isDynamic: false,
+      isEditable: true
+    }));
+    return [...dynamicProjects, ...staticProjects];
   }, [dynamicData.projects]);
 
   const currentProjects = mergedProjects;
@@ -266,9 +272,15 @@ export default function Home() {
         en: p.tagsEn ? p.tagsEn.split(",") : [],
         es: p.tagsEs ? p.tagsEs.split(",") : []
       },
-      isDynamic: true
+      isDynamic: true,
+      isEditable: true
     }));
-    return [...dynamicPubs, ...allPublications];
+    const staticPubs = allPublications.map((p) => ({
+      ...p,
+      isDynamic: false,
+      isEditable: false
+    }));
+    return [...dynamicPubs, ...staticPubs];
   }, [dynamicData.publications]);
   
   // Publications Logic
@@ -493,7 +505,7 @@ export default function Home() {
                       transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
                     >
                       <div className="project-row group relative">
-                        {isAdmin && (project as any).isDynamic && (
+                        {isAdmin && (project as any).isEditable && (
                             <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                 <AddProjectDialog existingProject={project} trigger={<Button variant="secondary" size="icon" className="h-8 w-8 shadow-sm"><Pencil size={14} /></Button>} />
                             </div>
@@ -586,7 +598,7 @@ export default function Home() {
                           transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
                         >
                           <div className="publication-row group relative">
-                            {isAdmin && (publication as any).isDynamic && (
+                            {isAdmin && (publication as any).isEditable && (
                                 <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                     <AddPublicationDialog existingPublication={publication} trigger={<Button variant="secondary" size="icon" className="h-8 w-8 shadow-sm"><Pencil size={14} /></Button>} />
                                 </div>
