@@ -229,6 +229,15 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!isMobile) {
+      return;
+    }
+
+    setCurrentSlide(0);
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [isMobile]);
+
+  useEffect(() => {
     const updateScroll = () => {
       // If the body is scroll-locked by a dialog/modal, do not override overflow styles.
       // Radix UI adds 'data-scroll-locked' to the body.
@@ -428,6 +437,7 @@ export default function Home() {
                   className={`nav-island__link ${index === currentSlide ? "is-active" : ""}`}
                   onClick={() => goToSlide(index)}
                   aria-label={getLabel(slide)}
+                  title={getLabel(slide)}
                 >
                   {isMobile ? <Icon size={16} aria-hidden="true" /> : getLabel(slide)}
                 </button>

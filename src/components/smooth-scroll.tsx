@@ -5,11 +5,15 @@ import Lenis from "lenis";
 
 export function SmoothScroll() {
   useEffect(() => {
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+    if (isTouchDevice) {
+      return;
+    }
+
     const lenis = new Lenis({
       duration: 0.5,
       easing: (t: number) => 1 - Math.pow(1 - t, 2),
       smoothWheel: true,
-      syncTouch: true,
     });
 
     const handleAnchorClick = (event: MouseEvent) => {

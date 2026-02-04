@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Manrope } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SmoothScroll } from "@/components/smooth-scroll";
@@ -20,6 +20,12 @@ export const metadata: Metadata = {
   title: "Simón Ocampo | Portfolio",
   description:
     "Systems Analyst and future Systems Engineer. Full Stack development and academic research portfolio.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
