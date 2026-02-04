@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Plus, Trash2 } from "lucide-react";
 import { SkillItemData } from "@/components/paginated-skill-panel";
@@ -110,11 +111,11 @@ export function AddSkillDialog({ existingSkill, trigger }: AddSkillDialogProps) 
             </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto overscroll-contain">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{existingSkill ? "Edit Skill" : "Add New Skill"}</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-1 gap-4 py-4">
+        <div className="grid grid-cols-1 gap-4">
           <Input name="name" value={formData.name || ""} placeholder="Skill Name" onChange={handleInputChange} />
           
           <Select value={formData.category || ""} onValueChange={handleCategoryChange}>
@@ -130,16 +131,17 @@ export function AddSkillDialog({ existingSkill, trigger }: AddSkillDialogProps) 
           
           <IconPicker value={formData.icon} onChange={handleIconChange} />
         </div>
-        <div className="flex gap-2">
-            <Button onClick={handleSubmit} disabled={loading} className="w-full">
-            {loading ? "Saving..." : "Save Skill"}
-            </Button>
+        <DialogFooter>
             {existingSkill && (
-                <Button onClick={handleDelete} disabled={loading} variant="destructive" size="icon">
-                    <Trash2 size={18} />
+                <Button onClick={handleDelete} disabled={loading} variant="destructive" className="mr-auto">
+                    <Trash2 size={18} className="mr-2" />
+                    Delete
                 </Button>
             )}
-        </div>
+            <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? "Saving..." : "Save Skill"}
+            </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

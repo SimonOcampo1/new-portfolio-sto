@@ -28,7 +28,7 @@ const SkillItem = ({ item, icon: Icon, isAdmin }: { item: string | SkillItemData
   const isDynamic = typeof item !== 'string' && !!item.id;
   
   return (
-    <div className="skill-row text-xs py-1 flex items-start w-full group select-none relative pr-8">
+    <div className="skill-row text-xs py-1 flex items-start w-full group select-none relative">
         <span className="skill-row__icon w-6 h-6 min-w-[24px] shrink-0 flex items-center justify-center mr-2 mt-0.5">
             <Icon size={14} />
         </span>
@@ -38,12 +38,8 @@ const SkillItem = ({ item, icon: Icon, isAdmin }: { item: string | SkillItemData
         </div>
         
         {isAdmin && isDynamic && typeof item !== 'string' && (
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm rounded">
+            <div className="flex items-center gap-1 ml-2">
                  <AddSkillDialog existingSkill={item as any} trigger={<Button variant="ghost" size="icon" className="h-6 w-6 text-primary"><Pencil size={12} /></Button>} />
-                 {/* Delete is handled inside dialog or we need a separate delete button here? 
-                     Let's put delete inside the edit dialog for simplicity or next to it.
-                     For now let's just use the Edit dialog which will have Delete.
-                 */}
             </div>
         )}
     </div>

@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -118,17 +119,17 @@ export function AddProjectDialog({ existingProject, trigger }: AddProjectDialogP
             </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{existingProject ? "Edit Project" : "Add New Project"}</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-4 py-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input name="titleEn" value={formData.titleEn || ""} placeholder="Title (EN)" onChange={handleInputChange} />
           <Input name="titleEs" value={formData.titleEs || ""} placeholder="Title (ES)" onChange={handleInputChange} />
-          <Textarea name="shortDescEn" value={formData.shortDescEn || ""} placeholder="Short Desc (EN)" onChange={handleInputChange} />
-          <Textarea name="shortDescEs" value={formData.shortDescEs || ""} placeholder="Short Desc (ES)" onChange={handleInputChange} />
-          <Textarea name="fullDescEn" value={formData.fullDescEn || ""} placeholder="Full Desc (EN)" onChange={handleInputChange} className="col-span-2" />
-          <Textarea name="fullDescEs" value={formData.fullDescEs || ""} placeholder="Full Desc (ES)" onChange={handleInputChange} className="col-span-2" />
+          <Textarea name="shortDescEn" value={formData.shortDescEn || ""} placeholder="Short Desc (EN)" onChange={handleInputChange} className="min-h-[80px]" />
+          <Textarea name="shortDescEs" value={formData.shortDescEs || ""} placeholder="Short Desc (ES)" onChange={handleInputChange} className="min-h-[80px]" />
+          <Textarea name="fullDescEn" value={formData.fullDescEn || ""} placeholder="Full Desc (EN)" onChange={handleInputChange} className="col-span-1 sm:col-span-2 min-h-[100px]" />
+          <Textarea name="fullDescEs" value={formData.fullDescEs || ""} placeholder="Full Desc (ES)" onChange={handleInputChange} className="col-span-1 sm:col-span-2 min-h-[100px]" />
           <Input name="year" value={formData.year || ""} placeholder="Year" onChange={handleInputChange} />
           <Input name="technologies" value={formData.technologies || ""} placeholder="Technologies (comma sep)" onChange={handleInputChange} />
           <Input name="liveUrl" value={formData.liveUrl || ""} placeholder="Live URL" onChange={handleInputChange} />
@@ -136,16 +137,17 @@ export function AddProjectDialog({ existingProject, trigger }: AddProjectDialogP
           <Input name="tagsEn" value={formData.tagsEn || ""} placeholder="Tags EN (comma sep)" onChange={handleInputChange} />
           <Input name="tagsEs" value={formData.tagsEs || ""} placeholder="Tags ES (comma sep)" onChange={handleInputChange} />
         </div>
-        <div className="flex gap-2">
-            <Button onClick={handleSubmit} disabled={loading} className="w-full">
-            {loading ? "Saving..." : "Save Project"}
-            </Button>
+        <DialogFooter>
             {existingProject && (
-                <Button onClick={handleDelete} disabled={loading} variant="destructive" size="icon">
-                    <Trash2 size={18} />
+                <Button onClick={handleDelete} disabled={loading} variant="destructive" className="mr-auto">
+                    <Trash2 size={18} className="mr-2" />
+                    Delete
                 </Button>
             )}
-        </div>
+            <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? "Saving..." : "Save Project"}
+            </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

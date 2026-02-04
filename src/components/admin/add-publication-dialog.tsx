@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -103,28 +104,29 @@ export function AddPublicationDialog({ existingPublication, trigger }: AddPublic
             </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto overscroll-contain">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{existingPublication ? "Edit Publication" : "Add New Publication"}</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-4 py-4">
-          <Input name="title" value={formData.title || ""} placeholder="Title" onChange={handleInputChange} />
-          <Input name="citationApa" value={formData.citationApa || ""} placeholder="Citation (APA)" onChange={handleInputChange} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input name="title" value={formData.title || ""} placeholder="Title" onChange={handleInputChange} className="col-span-1 sm:col-span-2" />
+          <Input name="citationApa" value={formData.citationApa || ""} placeholder="Citation (APA)" onChange={handleInputChange} className="col-span-1 sm:col-span-2" />
           <Input name="url" value={formData.url || ""} placeholder="URL" onChange={handleInputChange} />
           <Input name="lang" value={formData.lang || ""} placeholder="Language (en/es)" onChange={handleInputChange} />
           <Input name="tagsEn" value={formData.tagsEn || ""} placeholder="Tags EN (comma sep)" onChange={handleInputChange} />
           <Input name="tagsEs" value={formData.tagsEs || ""} placeholder="Tags ES (comma sep)" onChange={handleInputChange} />
         </div>
-        <div className="flex gap-2">
-            <Button onClick={handleSubmit} disabled={loading} className="w-full">
-            {loading ? "Saving..." : "Save Publication"}
-            </Button>
+        <DialogFooter>
             {existingPublication && (
-                <Button onClick={handleDelete} disabled={loading} variant="destructive" size="icon">
-                    <Trash2 size={18} />
+                <Button onClick={handleDelete} disabled={loading} variant="destructive" className="mr-auto">
+                    <Trash2 size={18} className="mr-2" />
+                    Delete
                 </Button>
             )}
-        </div>
+            <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? "Saving..." : "Save Publication"}
+            </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

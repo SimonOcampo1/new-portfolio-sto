@@ -506,7 +506,7 @@ export default function Home() {
                     >
                       <div className="project-row group relative">
                         {isAdmin && (project as any).isEditable && (
-                            <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <div className="absolute right-2 top-2 z-10">
                                 <AddProjectDialog existingProject={project} trigger={<Button variant="secondary" size="icon" className="h-8 w-8 shadow-sm"><Pencil size={14} /></Button>} />
                             </div>
                         )}
@@ -599,7 +599,7 @@ export default function Home() {
                         >
                           <div className="publication-row group relative">
                             {isAdmin && (publication as any).isEditable && (
-                                <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                <div className="absolute right-2 top-2 z-10">
                                     <AddPublicationDialog existingPublication={publication} trigger={<Button variant="secondary" size="icon" className="h-8 w-8 shadow-sm"><Pencil size={14} /></Button>} />
                                 </div>
                             )}
