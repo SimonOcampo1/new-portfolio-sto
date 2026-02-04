@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -160,6 +160,14 @@ export default function Home() {
   const [projectClosing, setProjectClosing] = useState(false);
   const [publicationClosing, setPublicationClosing] = useState(false);
   const [skillClosing, setSkillClosing] = useState(false);
+  const [contactForm, setContactForm] = useState({
+    name: "",
+    email: "",
+    message: "",
+    company: "",
+  });
+  const [contactStatus, setContactStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [contactError, setContactError] = useState("");
 
   const closeProjectForm = () => {
     setProjectClosing(true);
@@ -191,6 +199,63 @@ export default function Home() {
     navigator.clipboard.writeText("ocamposimon1@gmail.com");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleContactChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setContactForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const submitContactForm = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (contactStatus === "sending") {
+      return;
+    }
+
+    const name = contactForm.name.trim();
+    const email = contactForm.email.trim();
+    const message = contactForm.message.trim();
+
+    if (!name || !email || !message) {
+      setContactError(t.contact.validationError);
+      setContactStatus("error");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setContactError(t.contact.invalidEmail);
+      setContactStatus("error");
+      return;
+    }
+
+    setContactStatus("sending");
+    setContactError("");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+          company: contactForm.company,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        setContactError(data?.error || t.contact.sendError);
+        setContactStatus("error");
+        return;
+      }
+
+      setContactStatus("success");
+      setContactForm({ name: "", email: "", message: "", company: "" });
+    } catch (error) {
+      setContactError(t.contact.sendError);
+      setContactStatus("error");
+    }
   };
 
   useEffect(() => {
@@ -946,21 +1011,50 @@ export default function Home() {
                     transition={{ duration: 0.6, ease: easing }}
                   >
                     <Card className="border-border/80 bg-card/70 p-6">
-                      <form className="space-y-4">
-                        <Input placeholder={language === "en" ? "Your Name" : "Tu Nombre"} />
+                      <form className="space-y-4" onSubmit={submitContactForm}>
                         <Input
-                          placeholder={
-                            language === "en" ? "Your Email" : "Tu Correo Electr\u00f3nico"
-                          }
+                          name="name"
+                          value={contactForm.name}
+                          onChange={handleContactChange}
+                          placeholder={t.contact.namePlaceholder}
+                          autoComplete="name"
+                          required
+                        />
+                        <Input
+                          name="email"
+                          value={contactForm.email}
+                          onChange={handleContactChange}
+                          placeholder={t.contact.emailPlaceholder}
                           type="email"
+                          autoComplete="email"
+                          required
+                        />
+                        <Input
+                          name="company"
+                          value={contactForm.company}
+                          onChange={handleContactChange}
+                          className="hidden"
+                          tabIndex={-1}
+                          autoComplete="off"
+                          aria-hidden="true"
                         />
                         <Textarea
-                          placeholder={language === "en" ? "Your Message" : "Tu Mensaje"}
+                          name="message"
+                          value={contactForm.message}
+                          onChange={handleContactChange}
+                          placeholder={t.contact.messagePlaceholder}
                           rows={4}
+                          required
                         />
-                        <Button type="submit" className="w-full">
-                          {language === "en" ? "Send Message" : "Enviar Mensaje"}
+                        <Button type="submit" className="w-full" disabled={contactStatus === "sending"}>
+                          {contactStatus === "sending" ? t.contact.sendingButton : t.contact.sendButton}
                         </Button>
+                        {contactStatus === "success" && (
+                          <p className="text-xs text-emerald-600">{t.contact.successMessage}</p>
+                        )}
+                        {contactStatus === "error" && (
+                          <p className="text-xs text-red-500">{contactError || t.contact.sendError}</p>
+                        )}
                       </form>
                     </Card>
                   </motion.div>

@@ -53,6 +53,15 @@ export const translations = {
         "Feel free to contact me for development opportunities, collaboration inquiries, or to simply get in touch.",
       emailButton: "Email Me",
       linkedinButton: "Connect on LinkedIn",
+      namePlaceholder: "Your Name",
+      emailPlaceholder: "Your Email",
+      messagePlaceholder: "Your Message",
+      sendButton: "Send Message",
+      sendingButton: "Sending...",
+      successMessage: "Thanks! Your message was sent.",
+      sendError: "Something went wrong. Please try again.",
+      validationError: "Please fill out all fields.",
+      invalidEmail: "Please enter a valid email address.",
     },
 
     footer: {
@@ -114,6 +123,15 @@ export const translations = {
         "No dudes en escribirme si necesitás un desarrollador, tenés propuestas de colaboración o simplemente querés conversar.",
       emailButton: "Enviame un Email",
       linkedinButton: "Conectá en LinkedIn",
+      namePlaceholder: "Tu Nombre",
+      emailPlaceholder: "Tu Correo Electrónico",
+      messagePlaceholder: "Tu Mensaje",
+      sendButton: "Enviar Mensaje",
+      sendingButton: "Enviando...",
+      successMessage: "Gracias! Tu mensaje fue enviado.",
+      sendError: "Algo salió mal. Probá nuevamente.",
+      validationError: "Por favor completá todos los campos.",
+      invalidEmail: "Ingresá un correo válido.",
     },
 
     footer: {
