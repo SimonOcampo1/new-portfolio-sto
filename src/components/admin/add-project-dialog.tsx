@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,12 +11,49 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 
-export function AddProjectDialog() {
+interface AddProjectDialogProps {
+    existingProject?: any;
+    trigger?: React.ReactNode;
+}
+
+export function AddProjectDialog({ existingProject, trigger }: AddProjectDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<any>({});
+
+  useEffect(() => {
+    if (open && existingProject) {
+        // Transform the object structure to flat structure if needed, or ensuring proper keys
+        // The existingProject structure from page.tsx might be nested (title: {en: ...}) or flat depending on how it's passed.
+        // Let's assume for editing we pass the RAW data or we need to map it back.
+        // Actually, in page.tsx we mapped it to { title: {en, es}, ... }.
+        // But for editing it is easier if we pass the original flat Prisma object if available, OR we map it back here.
+        // Since we don't have the original flat object easily available in the merged list, let's try to map the UI object back to flat form if possible,
+        // OR ideally, we should fetch the raw data for editing.
+        // For simplicity, let's try to map back what we have from the UI props.
+        
+        const flatData = {
+            id: existingProject.id,
+            titleEn: existingProject.title?.en || "",
+            titleEs: existingProject.title?.es || "",
+            shortDescEn: existingProject.shortDescription?.en || "",
+            shortDescEs: existingProject.shortDescription?.es || "",
+            fullDescEn: existingProject.fullDescription?.en || "",
+            fullDescEs: existingProject.fullDescription?.es || "",
+            year: existingProject.year || "",
+            technologies: Array.isArray(existingProject.technologies) ? existingProject.technologies.join(",") : existingProject.technologies || "",
+            liveUrl: existingProject.liveUrl || "",
+            codeUrl: existingProject.codeUrl || "",
+            tagsEn: Array.isArray(existingProject.tags?.en) ? existingProject.tags.en.join(",") : "",
+            tagsEs: Array.isArray(existingProject.tags?.es) ? existingProject.tags.es.join(",") : "",
+        };
+        setFormData(flatData);
+    } else if (open) {
+        setFormData({});
+    }
+  }, [open, existingProject]);
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -26,53 +63,89 @@ export function AddProjectDialog() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/projects", {
-        method: "POST",
+      const url = "/api/admin/projects";
+      const method = existingProject ? "PUT" : "POST";
+      
+      const res = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       if (res.ok) {
-        alert("Project added successfully!");
         setFormData({});
         setOpen(false);
-        window.location.reload(); // Simple reload to show new data
+        window.location.reload(); 
       } else {
-        alert("Failed to add project");
+        alert("Failed to save project");
       }
     } catch (e) {
       console.error(e);
-      alert("Error adding project");
+      alert("Error saving project");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDelete = async () => {
+      if (!confirm("Are you sure you want to delete this project?")) return;
+      setLoading(true);
+      try {
+          const res = await fetch("/api/admin/projects", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: existingProject.id }),
+          });
+          if (res.ok) {
+              setOpen(false);
+              window.location.reload();
+          } else {
+              alert("Failed to delete project");
+          }
+      } catch (e) {
+          console.error(e);
+          alert("Error deleting project");
+      } finally {
+          setLoading(false);
+      }
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="icon" variant="outline" className="rounded-full w-8 h-8 ml-4">
-          <Plus size={16} />
-        </Button>
+        {trigger ? trigger : (
+            <Button size="icon" variant="outline" className="rounded-full w-8 h-8 ml-4">
+            <Plus size={16} />
+            </Button>
+        )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Project</DialogTitle>
+          <DialogTitle>{existingProject ? "Edit Project" : "Add New Project"}</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 py-4">
-          <Input name="titleEn" placeholder="Title (EN)" onChange={handleInputChange} />
-          <Input name="titleEs" placeholder="Title (ES)" onChange={handleInputChange} />
-          <Textarea name="shortDescEn" placeholder="Short Desc (EN)" onChange={handleInputChange} />
-          <Textarea name="shortDescEs" placeholder="Short Desc (ES)" onChange={handleInputChange} />
-          <Input name="year" placeholder="Year" onChange={handleInputChange} />
-          <Input name="technologies" placeholder="Technologies (comma sep)" onChange={handleInputChange} />
-          <Input name="liveUrl" placeholder="Live URL" onChange={handleInputChange} />
-          <Input name="codeUrl" placeholder="Code URL" onChange={handleInputChange} />
-          <Input name="tagsEn" placeholder="Tags EN (comma sep)" onChange={handleInputChange} />
-          <Input name="tagsEs" placeholder="Tags ES (comma sep)" onChange={handleInputChange} />
+          <Input name="titleEn" value={formData.titleEn || ""} placeholder="Title (EN)" onChange={handleInputChange} />
+          <Input name="titleEs" value={formData.titleEs || ""} placeholder="Title (ES)" onChange={handleInputChange} />
+          <Textarea name="shortDescEn" value={formData.shortDescEn || ""} placeholder="Short Desc (EN)" onChange={handleInputChange} />
+          <Textarea name="shortDescEs" value={formData.shortDescEs || ""} placeholder="Short Desc (ES)" onChange={handleInputChange} />
+          <Textarea name="fullDescEn" value={formData.fullDescEn || ""} placeholder="Full Desc (EN)" onChange={handleInputChange} className="col-span-2" />
+          <Textarea name="fullDescEs" value={formData.fullDescEs || ""} placeholder="Full Desc (ES)" onChange={handleInputChange} className="col-span-2" />
+          <Input name="year" value={formData.year || ""} placeholder="Year" onChange={handleInputChange} />
+          <Input name="technologies" value={formData.technologies || ""} placeholder="Technologies (comma sep)" onChange={handleInputChange} />
+          <Input name="liveUrl" value={formData.liveUrl || ""} placeholder="Live URL" onChange={handleInputChange} />
+          <Input name="codeUrl" value={formData.codeUrl || ""} placeholder="Code URL" onChange={handleInputChange} />
+          <Input name="tagsEn" value={formData.tagsEn || ""} placeholder="Tags EN (comma sep)" onChange={handleInputChange} />
+          <Input name="tagsEs" value={formData.tagsEs || ""} placeholder="Tags ES (comma sep)" onChange={handleInputChange} />
         </div>
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
-          {loading ? "Saving..." : "Save Project"}
-        </Button>
+        <div className="flex gap-2">
+            <Button onClick={handleSubmit} disabled={loading} className="w-full">
+            {loading ? "Saving..." : "Save Project"}
+            </Button>
+            {existingProject && (
+                <Button onClick={handleDelete} disabled={loading} variant="destructive" size="icon">
+                    <Trash2 size={18} />
+                </Button>
+            )}
+        </div>
       </DialogContent>
     </Dialog>
   );

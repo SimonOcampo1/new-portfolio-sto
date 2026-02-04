@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -27,8 +27,17 @@ interface IconPickerProps {
 
 export function IconPicker({ value, onChange }: IconPickerProps) {
   const [open, setOpen] = React.useState(false)
-
+  const [search, setSearch] = React.useState("")
+  
   const SelectedIcon = value && iconMap[value] ? (iconMap[value] as LucideIcon) : null
+
+  // Filter icons based on search to improve performance and avoid huge lists
+  const filteredIcons = React.useMemo(() => {
+    if (!search) return iconNames.slice(0, 50); // Show first 50 by default
+    return iconNames
+      .filter((name) => name.toLowerCase().includes(search.toLowerCase()))
+      .slice(0, 50); // Limit search results to 50
+  }, [search]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -47,16 +56,16 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
           ) : (
             "Select an icon..."
           )}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-        <Command>
-          <CommandInput placeholder="Search icon..." />
-          <CommandList className="max-h-[300px]">
-            <CommandEmpty>No icon found.</CommandEmpty>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" side="bottom" align="start">
+        <Command shouldFilter={false}>
+          <CommandInput placeholder="Search icon..." value={search} onValueChange={setSearch} />
+          <CommandList className="max-h-[200px] overflow-y-auto scrollbar-thin">
+            {filteredIcons.length === 0 && <CommandEmpty>No icon found.</CommandEmpty>}
             <CommandGroup>
-              {iconNames.map((name) => {
+              {filteredIcons.map((name) => {
                  const Icon = iconMap[name] as LucideIcon;
                  return (
                     <CommandItem
@@ -65,6 +74,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
                         onSelect={(currentValue) => {
                         onChange(currentValue === value ? "" : currentValue)
                         setOpen(false)
+                        setSearch("") // Reset search on select
                         }}
                     >
                         <Check

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,12 +10,35 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 
-export function AddPublicationDialog() {
+interface AddPublicationDialogProps {
+    existingPublication?: any;
+    trigger?: React.ReactNode;
+}
+
+export function AddPublicationDialog({ existingPublication, trigger }: AddPublicationDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<any>({});
+
+  useEffect(() => {
+    if (open && existingPublication) {
+        // Similar mapping logic as Project
+        const flatData = {
+            id: existingPublication.id,
+            title: existingPublication.title || "",
+            citationApa: existingPublication.citationApa || "",
+            url: existingPublication.url || "",
+            lang: existingPublication.lang || "",
+            tagsEn: Array.isArray(existingPublication.tags?.en) ? existingPublication.tags.en.join(",") : "",
+            tagsEs: Array.isArray(existingPublication.tags?.es) ? existingPublication.tags.es.join(",") : "",
+        };
+        setFormData(flatData);
+    } else if (open) {
+        setFormData({});
+    }
+  }, [open, existingPublication]);
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -25,49 +48,83 @@ export function AddPublicationDialog() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/publications", {
-        method: "POST",
+      const url = "/api/admin/publications";
+      const method = existingPublication ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       if (res.ok) {
-        alert("Publication added successfully!");
         setFormData({});
         setOpen(false);
         window.location.reload();
       } else {
-        alert("Failed to add publication");
+        alert("Failed to save publication");
       }
     } catch (e) {
       console.error(e);
-      alert("Error adding publication");
+      alert("Error saving publication");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDelete = async () => {
+      if (!confirm("Are you sure you want to delete this publication?")) return;
+      setLoading(true);
+      try {
+          const res = await fetch("/api/admin/publications", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: existingPublication.id }),
+          });
+          if (res.ok) {
+              setOpen(false);
+              window.location.reload();
+          } else {
+              alert("Failed to delete publication");
+          }
+      } catch (e) {
+          console.error(e);
+          alert("Error deleting publication");
+      } finally {
+          setLoading(false);
+      }
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="icon" variant="outline" className="rounded-full w-8 h-8 ml-4">
-          <Plus size={16} />
-        </Button>
+        {trigger ? trigger : (
+            <Button size="icon" variant="outline" className="rounded-full w-8 h-8 ml-4">
+            <Plus size={16} />
+            </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Add New Publication</DialogTitle>
+          <DialogTitle>{existingPublication ? "Edit Publication" : "Add New Publication"}</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 py-4">
-          <Input name="title" placeholder="Title" onChange={handleInputChange} />
-          <Input name="citationApa" placeholder="Citation (APA)" onChange={handleInputChange} />
-          <Input name="url" placeholder="URL" onChange={handleInputChange} />
-          <Input name="lang" placeholder="Language (en/es)" onChange={handleInputChange} />
-          <Input name="tagsEn" placeholder="Tags EN (comma sep)" onChange={handleInputChange} />
-          <Input name="tagsEs" placeholder="Tags ES (comma sep)" onChange={handleInputChange} />
+          <Input name="title" value={formData.title || ""} placeholder="Title" onChange={handleInputChange} />
+          <Input name="citationApa" value={formData.citationApa || ""} placeholder="Citation (APA)" onChange={handleInputChange} />
+          <Input name="url" value={formData.url || ""} placeholder="URL" onChange={handleInputChange} />
+          <Input name="lang" value={formData.lang || ""} placeholder="Language (en/es)" onChange={handleInputChange} />
+          <Input name="tagsEn" value={formData.tagsEn || ""} placeholder="Tags EN (comma sep)" onChange={handleInputChange} />
+          <Input name="tagsEs" value={formData.tagsEs || ""} placeholder="Tags ES (comma sep)" onChange={handleInputChange} />
         </div>
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
-          {loading ? "Saving..." : "Save Publication"}
-        </Button>
+        <div className="flex gap-2">
+            <Button onClick={handleSubmit} disabled={loading} className="w-full">
+            {loading ? "Saving..." : "Save Publication"}
+            </Button>
+            {existingPublication && (
+                <Button onClick={handleDelete} disabled={loading} variant="destructive" size="icon">
+                    <Trash2 size={18} />
+                </Button>
+            )}
+        </div>
       </DialogContent>
     </Dialog>
   );

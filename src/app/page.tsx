@@ -31,6 +31,7 @@ import {
   Server,
   Sun,
   Wind,
+  Pencil,
 } from "lucide-react";
 import { PaginatedSkillPanel } from "@/components/paginated-skill-panel";
 import { Button } from "@/components/ui/button";
@@ -181,6 +182,12 @@ export default function Home() {
 
   useEffect(() => {
     const updateScroll = () => {
+      // If the body is scroll-locked by a dialog/modal, do not override overflow styles.
+      // Radix UI adds 'data-scroll-locked' to the body.
+      if (document.body.hasAttribute("data-scroll-locked")) {
+          return;
+      }
+
       const slideId = slides[currentSlide];
       const section = document.getElementById(slideId);
       if (!section) {
@@ -239,7 +246,8 @@ export default function Home() {
       tags: { 
         en: p.tagsEn ? p.tagsEn.split(",") : [],
         es: p.tagsEs ? p.tagsEs.split(",") : []
-      }
+      },
+      isDynamic: true
     }));
     return [...dynamicProjects, ...projects];
   }, [dynamicData.projects]);
@@ -257,7 +265,8 @@ export default function Home() {
       tags: {
         en: p.tagsEn ? p.tagsEn.split(",") : [],
         es: p.tagsEs ? p.tagsEs.split(",") : []
-      }
+      },
+      isDynamic: true
     }));
     return [...dynamicPubs, ...allPublications];
   }, [dynamicData.publications]);
@@ -483,7 +492,12 @@ export default function Home() {
                       variants={sectionReveal}
                       transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
                     >
-                      <div className="project-row">
+                      <div className="project-row group relative">
+                        {isAdmin && (project as any).isDynamic && (
+                            <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                <AddProjectDialog existingProject={project} trigger={<Button variant="secondary" size="icon" className="h-8 w-8 shadow-sm"><Pencil size={14} /></Button>} />
+                            </div>
+                        )}
                         <div className="project-row__icon">
                           <Code2 size={18} />
                         </div>
@@ -571,7 +585,12 @@ export default function Home() {
                           variants={sectionReveal}
                           transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
                         >
-                          <div className="publication-row">
+                          <div className="publication-row group relative">
+                            {isAdmin && (publication as any).isDynamic && (
+                                <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                    <AddPublicationDialog existingPublication={publication} trigger={<Button variant="secondary" size="icon" className="h-8 w-8 shadow-sm"><Pencil size={14} /></Button>} />
+                                </div>
+                            )}
                             <div className="publication-row__icon">
                               <BookOpen size={18} />
                             </div>
@@ -671,18 +690,21 @@ export default function Home() {
                     items={mergedSkills.technical} 
                     itemsPerPage={10} 
                     iconMap={mergedIconMap}
+                    isAdmin={isAdmin}
                   />
                   <PaginatedSkillPanel 
                     title={t.skills.academic} 
                     items={mergedSkills.academic} 
                     itemsPerPage={10} 
                     defaultIcon={GraduationCap}
+                    isAdmin={isAdmin}
                   />
                   <PaginatedSkillPanel 
                     title={t.skills.languages} 
                     items={mergedSkills.languages} 
                     itemsPerPage={10} 
                     defaultIcon={Globe}
+                    isAdmin={isAdmin}
                   />
                 </div>
               </div>
