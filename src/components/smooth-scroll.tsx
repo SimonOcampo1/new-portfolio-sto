@@ -9,6 +9,7 @@ export function SmoothScroll() {
       duration: 0.5,
       easing: (t: number) => 1 - Math.pow(1 - t, 2),
       smoothWheel: true,
+      syncTouch: true,
     });
 
     const handleAnchorClick = (event: MouseEvent) => {
