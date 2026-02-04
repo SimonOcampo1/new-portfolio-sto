@@ -20,6 +20,7 @@ import {
   Github,
   Globe,
   GraduationCap,
+  Home as HomeIcon,
   Library,
   Layers,
   Languages,
@@ -149,6 +150,7 @@ export default function Home() {
   const [language, setLanguage] = useState<LanguageKey>("en");
   const [mounted, setMounted] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const [copied, setCopied] = useState(false);
   const [publicationPage, setPublicationPage] = useState(0);
   const [dynamicData, setDynamicData] = useState<PortfolioData>({ projects: [], publications: [], skills: [] });
@@ -197,6 +199,15 @@ export default function Home() {
     if (stored === "en" || stored === "es") {
       setLanguage(stored);
     }
+
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    const updateIsMobile = () => setIsMobile(mediaQuery.matches);
+    updateIsMobile();
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", updateIsMobile);
+    } else {
+      mediaQuery.addListener(updateIsMobile);
+    }
     
     // Fetch dynamic data
     fetch("/api/portfolio-data")
@@ -208,6 +219,13 @@ export default function Home() {
       })
       .catch((err) => console.error("Failed to load portfolio data", err));
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener("change", updateIsMobile);
+      } else {
+        mediaQuery.removeListener(updateIsMobile);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -373,6 +391,19 @@ export default function Home() {
   };
 
   const getLabel = (key: SlideKey) => t.nav[key];
+  const getSlideState = (index: number) => (currentSlide === index ? "visible" : "hidden");
+  const navIcons: Record<SlideKey, any> = {
+    home: HomeIcon,
+    projects: Code2,
+    publications: BookOpen,
+    skills: Brain,
+    contact: Mail,
+  };
+  const heroAvatarSrc = isMobile
+    ? "/simon-avatar-head.png"
+    : mounted && (resolvedTheme === "light" || theme === "light")
+      ? "/simon-avatar-light.png"
+      : about.image;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -388,21 +419,26 @@ export default function Home() {
         >
           <div className="nav-island">
             <nav className="nav-island__links">
-              {slides.map((slide, index) => (
+              {slides.map((slide, index) => {
+                const Icon = navIcons[slide];
+                return (
                 <button
                   key={slide}
                   type="button"
                   className={`nav-island__link ${index === currentSlide ? "is-active" : ""}`}
                   onClick={() => goToSlide(index)}
+                  aria-label={getLabel(slide)}
                 >
-                  {getLabel(slide)}
+                  {isMobile ? <Icon size={16} aria-hidden="true" /> : getLabel(slide)}
                 </button>
-              ))}
+              );
+              })}
             </nav>
             <div className="nav-island__actions">
               <Button
                 variant="ghost"
                 size="icon"
+                className="nav-island__theme"
                 aria-label={t.hero.switchTheme}
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               >
@@ -432,18 +468,18 @@ export default function Home() {
               <motion.div
                 className="section-grid section-grid--hero"
                 initial="hidden"
-                animate={currentSlide === 0 ? "visible" : "hidden"}
+                animate={getSlideState(0)}
                 variants={stagger}
                 transition={{ duration: 0.65, ease: easing }}
               >
-                <motion.div variants={fadeUp} className="space-y-4">
-                  <div className="flex flex-col items-start gap-1">
+                <motion.div variants={fadeUp} className="hero-content space-y-4">
+                  <div className="flex flex-col items-center gap-1 md:items-start">
                      <p className="text-sm uppercase tracking-[0.45em] text-muted-foreground ml-1">
                         {t.hero.greeting}
                      </p>
                   </div>
                   
-                  <h1 className="font-display font-black uppercase leading-[0.85] tracking-tighter text-[8vw] md:text-[6rem] lg:text-[8rem] text-primary -ml-[0.05em]">
+                  <h1 className="hero-title font-display font-black uppercase leading-[0.85] tracking-tighter text-[8vw] md:text-[6rem] lg:text-[8rem] text-primary -ml-[0.05em] text-center md:text-left">
                     SIMÓN
                     <br />
                     <span className="ml-[0.1em] text-muted-foreground/30">OCAMPO</span>
@@ -458,7 +494,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 pt-4">
+                  <div className="flex flex-wrap items-center justify-center gap-3 pt-4 md:justify-start">
                     <Button onClick={() => goToSlide(1)}>{t.hero.cta}</Button>
                     <Button asChild variant="outline">
                       <a href={cvFile} target="_blank" rel="noreferrer">
@@ -466,7 +502,7 @@ export default function Home() {
                       </a>
                     </Button>
                   </div>
-                  <div className="flex items-center gap-4 text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground">
+                  <div className="flex items-center justify-center gap-4 text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground md:justify-start">
                     <span>Social</span>
                     <div className="flex items-center gap-3">
                       <Button variant="ghost" size="icon" aria-label="GitHub" asChild>
@@ -484,15 +520,15 @@ export default function Home() {
                 <motion.div
                   variants={fadeUp}
                   transition={{ duration: 0.7, delay: 0.1 }}
-                  className="relative flex justify-center md:justify-self-start"
+                  className="hero-media relative flex justify-center md:justify-self-start"
                 >
                   <Image
                     key={mounted ? resolvedTheme : "theme-loading"}
-                    src={mounted && (resolvedTheme === "light" || theme === "light") ? "/simon-avatar-light.png" : about.image}
+                    src={heroAvatarSrc}
                     alt="Simón Ocampo"
                     width={360}
                     height={360}
-                    className="hero-avatar h-auto w-80 object-contain md:w-[20rem]"
+                    className="hero-avatar h-auto w-56 object-contain sm:w-64 md:w-[20rem]"
                     priority
                   />
                 </motion.div>
@@ -503,10 +539,10 @@ export default function Home() {
               <div className="section-body">
                 <motion.div
                   initial="hidden"
-                  animate={currentSlide === 1 ? "visible" : "hidden"}
+                  animate={getSlideState(1)}
                   variants={sectionStagger}
                   transition={{ duration: 0.65, ease: easing }}
-                  className="mb-8 flex items-center justify-between"
+                  className="mb-8 flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between"
                 >
                   <motion.div variants={sectionReveal}>
                     <p className="text-sm uppercase tracking-[0.35em] text-muted-foreground">
@@ -555,7 +591,7 @@ export default function Home() {
                     <motion.div
                       key={project.id}
                       initial="hidden"
-                      animate={currentSlide === 1 ? "visible" : "hidden"}
+                      animate={getSlideState(1)}
                       variants={sectionReveal}
                       transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
                     >
@@ -616,7 +652,7 @@ export default function Home() {
                 <div className="grid gap-10 md:grid-cols-[1.1fr_0.9fr]">
                   <motion.div
                     initial="hidden"
-                    animate={currentSlide === 2 ? "visible" : "hidden"}
+                    animate={getSlideState(2)}
                     variants={sectionStagger}
                     transition={{ duration: 0.65, ease: easing }}
                     className="space-y-6"
@@ -679,7 +715,7 @@ export default function Home() {
                         <motion.div
                           key={publication.id}
                           initial="hidden"
-                          animate={currentSlide === 2 ? "visible" : "hidden"}
+                          animate={getSlideState(2)}
                           variants={sectionReveal}
                           transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
                         >
@@ -770,7 +806,7 @@ export default function Home() {
               <div className="section-body">
                 <motion.div
                   initial="hidden"
-                  animate={currentSlide === 3 ? "visible" : "hidden"}
+                  animate={getSlideState(3)}
                   variants={sectionStagger}
                   transition={{ duration: 0.65, ease: easing }}
                   className="mb-8"
@@ -847,7 +883,7 @@ export default function Home() {
                 <div className="grid gap-10 md:grid-cols-[1fr_1.2fr]">
                   <motion.div
                     initial="hidden"
-                    animate={currentSlide === 4 ? "visible" : "hidden"}
+                    animate={getSlideState(4)}
                     variants={sectionStagger}
                     transition={{ duration: 0.65, ease: easing }}
                     className="space-y-4"
@@ -895,7 +931,7 @@ export default function Home() {
                   </motion.div>
                   <motion.div
                     initial="hidden"
-                    animate={currentSlide === 4 ? "visible" : "hidden"}
+                    animate={getSlideState(4)}
                     variants={sectionReveal}
                     transition={{ duration: 0.6, ease: easing }}
                   >
