@@ -688,6 +688,17 @@ export default function Home() {
                               <div className="publication-row__icon">
                                 <BookOpen size={18} />
                               </div>
+                              {isAdmin && (publication as any).isEditable && (
+                                <Button
+                                  variant="secondary"
+                                  size="icon"
+                                  className="h-8 w-8 shadow-sm"
+                                  onClick={() => setActivePublicationForm(publication)}
+                                  aria-label="Edit publication"
+                                >
+                                  <Pencil size={14} />
+                                </Button>
+                              )}
                             </div>
                             <div className="publication-row__content">
                               <div className="publication-row__header">
@@ -721,7 +732,7 @@ export default function Home() {
                     </div>
 
                     {/* Pagination Controls */}
-                    {allPublications.length > ITEMS_PER_PAGE && (
+                    {mergedPublications.length > ITEMS_PER_PAGE && (
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
