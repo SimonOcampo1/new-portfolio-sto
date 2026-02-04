@@ -688,26 +688,10 @@ export default function Home() {
                               <div className="publication-row__icon">
                                 <BookOpen size={18} />
                               </div>
-                              {isAdmin && (publication as any).isEditable && (
-                                <Button
-                                  variant="secondary"
-                                  size="icon"
-                                  className="h-8 w-8 shadow-sm"
-                                  onClick={() => setActivePublicationForm(publication)}
-                                  aria-label="Edit publication"
-                                >
-                                  <Pencil size={14} />
-                                </Button>
-                              )}
                             </div>
                             <div className="publication-row__content">
                               <div className="publication-row__header">
-                                <h3 className="text-sm font-semibold flex items-center gap-2">
-                                  {publication.title}
-                                  <Badge variant="outline" className="text-[0.6rem] px-1 py-0 h-4 border-foreground/20 text-muted-foreground">
-                                    {publication.lang.toUpperCase()}
-                                  </Badge>
-                                </h3>
+                                <h3 className="text-sm font-semibold">{publication.title}</h3>
                                 <div className="publication-row__links">
                                   <Button asChild size="sm" variant="ghost">
                                     <a href={publication.url} target="_blank" rel="noreferrer">
@@ -721,25 +705,15 @@ export default function Home() {
                                 {publication.citationApa}
                               </p>
                               <div className="publication-row__meta">
+                                <Badge variant="outline" className="text-[0.6rem] px-1 py-0 h-4 border-foreground/20 text-muted-foreground">
+                                  {publication.lang.toUpperCase()}
+                                </Badge>
                                 {publication.tags[language]?.map((tag: string) => (
                                   <span key={tag} className="publication-row__tag">
                                     {tag}
                                   </span>
                                 ))}
                               </div>
-                              {isAdmin && (publication as any).isEditable && (
-                                <div className="publication-row__edit">
-                                  <Button
-                                    variant="secondary"
-                                    size="icon"
-                                    className="h-8 w-8 shadow-sm"
-                                    onClick={() => setActivePublicationForm(publication)}
-                                    aria-label="Edit publication"
-                                  >
-                                    <Pencil size={14} />
-                                  </Button>
-                                </div>
-                              )}
                             </div>
                           </div>
                         </motion.div>

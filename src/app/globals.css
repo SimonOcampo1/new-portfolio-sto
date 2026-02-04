@@ -492,7 +492,6 @@ section {
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
-  flex-wrap: wrap;
 }
 
 .publication-row__summary {
@@ -504,6 +503,7 @@ section {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+  align-items: center;
 }
 
 .admin-form-wrapper {
