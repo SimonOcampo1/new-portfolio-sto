@@ -463,10 +463,11 @@ section {
   border-bottom: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
 }
 
-.publication-row__edit {
+.publication-row__icon-stack {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 0.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .publication-row__icon {
@@ -507,6 +508,10 @@ section {
 
 .admin-form-wrapper {
   margin-bottom: 1.5rem;
+}
+
+.admin-form-wrapper--closing {
+  pointer-events: none;
 }
 
 .admin-form-card {

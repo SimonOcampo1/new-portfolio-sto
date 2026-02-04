@@ -155,6 +155,33 @@ export default function Home() {
   const [activeProjectForm, setActiveProjectForm] = useState<null | any>(null);
   const [activePublicationForm, setActivePublicationForm] = useState<null | any>(null);
   const [activeSkillForm, setActiveSkillForm] = useState<null | any>(null);
+  const [projectClosing, setProjectClosing] = useState(false);
+  const [publicationClosing, setPublicationClosing] = useState(false);
+  const [skillClosing, setSkillClosing] = useState(false);
+
+  const closeProjectForm = () => {
+    setProjectClosing(true);
+    setTimeout(() => {
+      setActiveProjectForm(null);
+      setProjectClosing(false);
+    }, 220);
+  };
+
+  const closePublicationForm = () => {
+    setPublicationClosing(true);
+    setTimeout(() => {
+      setActivePublicationForm(null);
+      setPublicationClosing(false);
+    }, 220);
+  };
+
+  const closeSkillForm = () => {
+    setSkillClosing(true);
+    setTimeout(() => {
+      setActiveSkillForm(null);
+      setSkillClosing(false);
+    }, 220);
+  };
 
   const isAdmin = session?.user?.email === "ocamposimon1@gmail.com";
 
@@ -494,7 +521,7 @@ export default function Home() {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => setActiveProjectForm(activeProjectForm ? null : {})}
+                            onClick={() => (activeProjectForm ? closeProjectForm() : setActiveProjectForm({}))}
                             aria-label="Add project"
                           >
                             <span className="text-lg leading-none">+</span>
@@ -512,13 +539,14 @@ export default function Home() {
                   <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.3, ease: easing }}
-                    className="admin-form-wrapper"
+                    className={projectClosing ? "admin-form-wrapper admin-form-wrapper--closing" : "admin-form-wrapper"}
                   >
                     <ProjectForm
                       initialProject={activeProjectForm?.id ? activeProjectForm : undefined}
-                      onCancel={() => setActiveProjectForm(null)}
-                      onSaved={() => setActiveProjectForm(null)}
+                      onCancel={closeProjectForm}
+                      onSaved={closeProjectForm}
                     />
                   </motion.div>
                 )}
@@ -532,19 +560,6 @@ export default function Home() {
                       transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
                     >
                       <div className="project-row group relative">
-                        {isAdmin && (project as any).isEditable && (
-                            <div className="absolute right-2 top-2 z-10">
-                              <Button
-                                variant="secondary"
-                                size="icon"
-                                className="h-8 w-8 shadow-sm"
-                                onClick={() => setActiveProjectForm(project)}
-                                aria-label="Edit project"
-                              >
-                                <Pencil size={14} />
-                              </Button>
-                            </div>
-                        )}
                         <div className="project-row__icon">
                           <Code2 size={18} />
                         </div>
@@ -575,6 +590,17 @@ export default function Home() {
                                   {t.projects.viewProject}
                                 </a>
                               </Button>
+                              {isAdmin && (project as any).isEditable && (
+                                <Button
+                                  variant="secondary"
+                                  size="icon"
+                                  className="h-8 w-8 shadow-sm"
+                                  onClick={() => setActiveProjectForm(project)}
+                                  aria-label="Edit project"
+                                >
+                                  <Pencil size={14} />
+                                </Button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -610,7 +636,7 @@ export default function Home() {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => setActivePublicationForm(activePublicationForm ? null : {})}
+                            onClick={() => (activePublicationForm ? closePublicationForm() : setActivePublicationForm({}))}
                             aria-label="Add publication"
                           >
                             <span className="text-lg leading-none">+</span>
@@ -637,13 +663,14 @@ export default function Home() {
                       <motion.div
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.3, ease: easing }}
-                        className="admin-form-wrapper"
+                        className={publicationClosing ? "admin-form-wrapper admin-form-wrapper--closing" : "admin-form-wrapper"}
                       >
                         <PublicationForm
                           initialPublication={activePublicationForm?.id ? activePublicationForm : undefined}
-                          onCancel={() => setActivePublicationForm(null)}
-                          onSaved={() => setActivePublicationForm(null)}
+                          onCancel={closePublicationForm}
+                          onSaved={closePublicationForm}
                         />
                       </motion.div>
                     )}
@@ -657,8 +684,21 @@ export default function Home() {
                           transition={{ delay: index * 0.1, duration: 0.6, ease: easing }}
                         >
                           <div className="publication-row group relative">
-                            <div className="publication-row__icon">
-                              <BookOpen size={18} />
+                            <div className="publication-row__icon-stack">
+                              <div className="publication-row__icon">
+                                <BookOpen size={18} />
+                              </div>
+                              {isAdmin && (publication as any).isEditable && (
+                                <Button
+                                  variant="secondary"
+                                  size="icon"
+                                  className="h-8 w-8 shadow-sm"
+                                  onClick={() => setActivePublicationForm(publication)}
+                                  aria-label="Edit publication"
+                                >
+                                  <Pencil size={14} />
+                                </Button>
+                              )}
                             </div>
                             <div className="publication-row__content">
                               <div className="publication-row__header">
@@ -765,7 +805,7 @@ export default function Home() {
                         variant="outline"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={() => setActiveSkillForm(activeSkillForm ? null : {})}
+                        onClick={() => (activeSkillForm ? closeSkillForm() : setActiveSkillForm({}))}
                         aria-label="Add skill"
                       >
                         <span className="text-lg leading-none">+</span>
@@ -777,13 +817,14 @@ export default function Home() {
                   <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.3, ease: easing }}
-                    className="admin-form-wrapper"
+                    className={skillClosing ? "admin-form-wrapper admin-form-wrapper--closing" : "admin-form-wrapper"}
                   >
                     <SkillForm
                       initialSkill={activeSkillForm?.id ? activeSkillForm : undefined}
-                      onCancel={() => setActiveSkillForm(null)}
-                      onSaved={() => setActiveSkillForm(null)}
+                      onCancel={closeSkillForm}
+                      onSaved={closeSkillForm}
                     />
                   </motion.div>
                 )}

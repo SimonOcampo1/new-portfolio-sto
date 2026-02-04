@@ -2,6 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Trash2 } from "lucide-react";
 
@@ -15,6 +26,7 @@ export function PublicationForm({ initialPublication, onCancel, onSaved }: Publi
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const isEditing = Boolean(initialPublication?.id);
 
@@ -69,20 +81,20 @@ export function PublicationForm({ initialPublication, onCancel, onSaved }: Publi
 
       if (res.ok) {
         onSaved?.();
+        toast.success("Publication saved")
         window.location.reload();
       } else {
-        alert("Failed to save publication");
+        toast.error("Failed to save publication")
       }
     } catch (e) {
       console.error(e);
-      alert("Error saving publication");
+      toast.error("Error saving publication")
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this publication?")) return;
     setLoading(true);
     try {
       const res = await fetch("/api/admin/publications", {
@@ -93,13 +105,14 @@ export function PublicationForm({ initialPublication, onCancel, onSaved }: Publi
 
       if (res.ok) {
         onSaved?.();
+        toast.success("Publication deleted")
         window.location.reload();
       } else {
-        alert("Failed to delete publication");
+        toast.error("Failed to delete publication")
       }
     } catch (e) {
       console.error(e);
-      alert("Error deleting publication");
+      toast.error("Error deleting publication")
     } finally {
       setLoading(false);
     }
@@ -138,10 +151,28 @@ export function PublicationForm({ initialPublication, onCancel, onSaved }: Publi
       </div>
       <div className="admin-form-actions">
         {isEditing && (
-          <Button onClick={handleDelete} disabled={loading} variant="destructive">
-            <Trash2 size={18} className="mr-2" />
-            Delete
-          </Button>
+          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <Button onClick={() => setConfirmOpen(true)} disabled={loading} variant="destructive">
+              <Trash2 size={18} className="mr-2" />
+              Delete
+            </Button>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete publication?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. The publication will be permanently removed.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel asChild>
+                  <Button variant="outline">Cancel</Button>
+                </AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
         <div className="admin-form-actions__right">
           <Button variant="outline" onClick={onCancel} disabled={loading}>

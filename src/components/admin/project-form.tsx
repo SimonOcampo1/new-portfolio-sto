@@ -2,6 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2 } from "lucide-react";
@@ -16,6 +27,7 @@ export function ProjectForm({ initialProject, onCancel, onSaved }: ProjectFormPr
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const isEditing = Boolean(initialProject?.id);
 
@@ -82,20 +94,20 @@ export function ProjectForm({ initialProject, onCancel, onSaved }: ProjectFormPr
 
       if (res.ok) {
         onSaved?.();
+        toast.success("Project saved")
         window.location.reload();
       } else {
-        alert("Failed to save project");
+        toast.error("Failed to save project")
       }
     } catch (e) {
       console.error(e);
-      alert("Error saving project");
+      toast.error("Error saving project")
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this project?")) return;
     setLoading(true);
     try {
       const res = await fetch("/api/admin/projects", {
@@ -106,13 +118,14 @@ export function ProjectForm({ initialProject, onCancel, onSaved }: ProjectFormPr
 
       if (res.ok) {
         onSaved?.();
+        toast.success("Project deleted")
         window.location.reload();
       } else {
-        alert("Failed to delete project");
+        toast.error("Failed to delete project")
       }
     } catch (e) {
       console.error(e);
-      alert("Error deleting project");
+      toast.error("Error deleting project")
     } finally {
       setLoading(false);
     }
@@ -173,10 +186,28 @@ export function ProjectForm({ initialProject, onCancel, onSaved }: ProjectFormPr
       </div>
       <div className="admin-form-actions">
         {isEditing && (
-          <Button onClick={handleDelete} disabled={loading} variant="destructive">
-            <Trash2 size={18} className="mr-2" />
-            Delete
-          </Button>
+          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <Button onClick={() => setConfirmOpen(true)} disabled={loading} variant="destructive">
+              <Trash2 size={18} className="mr-2" />
+              Delete
+            </Button>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete project?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. The project will be permanently removed.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel asChild>
+                  <Button variant="outline">Cancel</Button>
+                </AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
         <div className="admin-form-actions__right">
           <Button variant="outline" onClick={onCancel} disabled={loading}>
