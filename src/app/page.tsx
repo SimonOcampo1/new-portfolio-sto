@@ -905,6 +905,16 @@ export default function Home() {
                                     unoptimized
                                   />
                                 )}
+                                {hasMedia && (
+                                  <button
+                                    type="button"
+                                    className="project-details__fullscreen"
+                                    onClick={() => openCarousel(projectMediaIndex)}
+                                    aria-label={language === "es" ? "Ver galeria" : "View gallery"}
+                                  >
+                                    <Expand size={18} />
+                                  </button>
+                                )}
                               </div>
                               <div className="project-details__carousel-controls">
                                 <Button size="icon" variant="ghost" onClick={goToPrevMedia}>
@@ -951,16 +961,6 @@ export default function Home() {
                             </div>
                           )}
                         </div>
-                        {hasMedia && (
-                          <button
-                            type="button"
-                            className="project-details__fullscreen"
-                            onClick={() => openCarousel(projectMediaIndex)}
-                            aria-label={language === "es" ? "Ver galeria" : "View gallery"}
-                          >
-                            <Expand size={18} />
-                          </button>
-                        )}
                       </div>
                     </motion.div>
                   ) : (
