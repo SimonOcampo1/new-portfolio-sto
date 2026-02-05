@@ -476,12 +476,19 @@ export default function Home() {
     const mediaVideos = project.mediaVideos || [];
     const projectVideos = project.video || [];
 
+    const filterByLanguage = (url: string) => {
+      const cleanUrl = url.split("?")[0];
+      const suffixMatch = cleanUrl.match(/-(en|es)(\.[^./]+)?$/i);
+      if (!suffixMatch) return true;
+      return suffixMatch[1].toLowerCase() === language;
+    };
+
     [...primaryImages, ...secondaryImages, ...mediaImages].forEach((url: string) => {
-      if (url) images.add(url);
+      if (url && filterByLanguage(url)) images.add(url);
     });
 
     [...mediaVideos, ...projectVideos].forEach((url: string) => {
-      if (url) videos.add(url);
+      if (url && filterByLanguage(url)) videos.add(url);
     });
 
     const mediaItems = [
