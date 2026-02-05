@@ -33,10 +33,11 @@ import {
   Sun,
   Wind,
   Pencil,
+  X,
 } from "lucide-react";
 import { PaginatedSkillPanel } from "@/components/paginated-skill-panel";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -1027,9 +1028,14 @@ export default function Home() {
                   )}
                 </AnimatePresence>
                 <Dialog open={Boolean(imageModalUrl)} onOpenChange={(open) => !open && closeImageModal()}>
-                  <DialogContent className="image-viewer" showCloseButton>
+                  <DialogContent className="image-viewer" showCloseButton={false}>
                     {imageModalUrl && (
                       <div className="image-viewer__frame">
+                        <DialogClose asChild>
+                          <button type="button" className="image-viewer__close" aria-label="Close">
+                            <X size={18} />
+                          </button>
+                        </DialogClose>
                         <img src={imageModalUrl} alt="" loading="eager" />
                       </div>
                     )}

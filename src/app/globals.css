@@ -532,6 +532,7 @@ section {
   place-items: center;
   padding: 2rem;
   background: transparent;
+  position: relative;
 }
 
 .image-viewer__frame img {
@@ -540,8 +541,22 @@ section {
   max-height: calc(100vh - 14rem);
   object-fit: contain;
   display: block;
-  border-radius: 20px;
+  border-radius: 22px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.image-viewer__close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  height: 34px;
+  width: 34px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 20%, transparent);
+  background: color-mix(in srgb, var(--background) 85%, transparent);
+  color: color-mix(in srgb, var(--foreground) 70%, transparent);
+  display: grid;
+  place-items: center;
 }
 
 .project-row {
