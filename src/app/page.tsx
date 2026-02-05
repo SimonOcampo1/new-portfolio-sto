@@ -1038,7 +1038,12 @@ export default function Home() {
                   )}
                 </AnimatePresence>
                 <Dialog open={isCarouselOpen} onOpenChange={(open) => !open && closeCarousel()}>
-                  <DialogContent className="carousel-viewer" showCloseButton={false}>
+                  <DialogContent
+                    className="carousel-viewer"
+                    showCloseButton={false}
+                    layout="simple"
+                    overlayClassName="carousel-viewer__overlay"
+                  >
                     <DialogClose asChild>
                       <button type="button" className="carousel-viewer__close" aria-label="Close">
                         <X size={18} />
