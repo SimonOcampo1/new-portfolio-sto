@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portafolio de Simon Ocampo
 
-## Getting Started
+Sitio web personal para mostrar proyectos, publicaciones y habilidades con contenido bilingue, CRUD administrativo y galerias multimedia.
 
-First, run the development server:
+## Proposito
+
+Este repositorio alimenta un portafolio profesional pensado para presentar el trabajo de forma clara y permitir actualizaciones rapidas sin necesidad de redeploys. Incluye contenido bilingue (EN/ES), galerias con imagenes y videos, y un flujo de administracion exclusivo.
+
+## Funcionalidades
+
+- Contenido bilingue (Ingles / Espanol) para proyectos y UI
+- Proyectos con descripcion completa, stack tecnologico y carrusel multimedia
+- Visor fullscreen del carrusel con navegacion
+- CRUD admin para proyectos, publicaciones y habilidades
+- Subida de imagenes y videos a Supabase Storage
+- Filtrado automatico de media segun `-en` / `-es`
+- Diseño responsive optimizado para desktop y mobile
+
+## Stack Tecnologico
+
+- Next.js 16 (App Router, React 19)
+- TypeScript
+- Tailwind CSS + shadcn/ui
+- Supabase (Postgres, Auth, Storage)
+- Framer Motion
+
+## Desarrollo Local
+
+1. Instalar dependencias:
+
+```bash
+npm install
+```
+
+2. Configurar `.env.local`:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL="https://qwvebfqkokjufvdnaybw.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="<tu-anon-key>"
+SUPABASE_STORAGE_BUCKET="portfolio-media"
+```
+
+3. Levantar el servidor:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Configuracion Supabase
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ejecutar en Supabase SQL editor:
 
-## Learn More
+- `supabase/schema.sql`
+- `supabase/rls.sql`
+- `supabase/storage.sql`
 
-To learn more about Next.js, take a look at the following resources:
+Habilitar Google OAuth en Supabase Auth y agregar los redirect URLs:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+http://localhost:3000/auth/callback
+https://<tu-dominio-vercel>/auth/callback
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Agregar tambien el callback en Google Cloud OAuth:
 
-## Deploy on Vercel
+```
+https://qwvebfqkokjufvdnaybw.supabase.co/auth/v1/callback
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploy (Vercel)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Variables requeridas:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_STORAGE_BUCKET`
+
+Si se usa el formulario de contacto:
+
+- `RESEND_API_KEY`
+- `CONTACT_EMAIL`
+- `CONTACT_FROM`
+- `CONTACT_HONEYPOT_MESSAGE`
+
+## Acceso Admin
+
+Solo la cuenta de Google `ocamposimon1@gmail.com` puede iniciar sesion y administrar contenido. Esto se valida en API routes y en politicas RLS.
+
+## Filtrado de Media por Idioma
+
+Si un asset termina con `-en` o `-es` (antes de la extension), solo se muestra en ese idioma. Si no tiene sufijo, se muestra en ambos.
+
+Ejemplos:
+
+- `project-banner-en.png` → Ingles
+- `project-banner-es.png` → Espanol
+- `project-banner.png` → ambos
+
+## Licencia
+
+Todos los derechos reservados.
