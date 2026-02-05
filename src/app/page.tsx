@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { PaginatedSkillPanel } from "@/components/paginated-skill-panel";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -1025,16 +1026,15 @@ export default function Home() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-                {imageModalUrl && (
-                  <div className="image-modal" onClick={closeImageModal}>
-                    <button type="button" className="image-modal__close" onClick={closeImageModal}>
-                      x
-                    </button>
-                    <div className="image-modal__content" onClick={(event) => event.stopPropagation()}>
-                      <Image src={imageModalUrl} alt="" width={1200} height={800} unoptimized />
-                    </div>
-                  </div>
-                )}
+                <Dialog open={Boolean(imageModalUrl)} onOpenChange={(open) => !open && closeImageModal()}>
+                  <DialogContent className="image-viewer" showCloseButton>
+                    {imageModalUrl && (
+                      <div className="image-viewer__frame">
+                        <Image src={imageModalUrl} alt="" width={1400} height={900} unoptimized />
+                      </div>
+                    )}
+                  </DialogContent>
+                </Dialog>
               </div>
             </section>
 
