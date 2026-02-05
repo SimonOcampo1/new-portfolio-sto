@@ -1044,12 +1044,16 @@ export default function Home() {
                     layout="simple"
                     overlayClassName="carousel-viewer__overlay"
                   >
-                    <DialogClose asChild>
-                      <button type="button" className="carousel-viewer__close" aria-label="Close">
-                        <X size={18} />
-                      </button>
-                    </DialogClose>
                     <div className="carousel-viewer__content">
+                      <div className="carousel-viewer__media">
+                        {activeMedia?.type === "video" ? (
+                          <video src={activeMedia.url} controls playsInline />
+                        ) : (
+                          <img src={activeMedia?.url || ""} alt="" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="carousel-viewer__controls">
                       <button
                         type="button"
                         className="carousel-viewer__nav"
@@ -1058,13 +1062,11 @@ export default function Home() {
                       >
                         <ChevronLeft size={20} />
                       </button>
-                      <div className="carousel-viewer__media">
-                        {activeMedia?.type === "video" ? (
-                          <video src={activeMedia.url} controls playsInline />
-                        ) : (
-                          <img src={activeMedia?.url || ""} alt="" />
-                        )}
-                      </div>
+                      <DialogClose asChild>
+                        <button type="button" className="carousel-viewer__close" aria-label="Close">
+                          <X size={18} />
+                        </button>
+                      </DialogClose>
                       <button
                         type="button"
                         className="carousel-viewer__nav"
