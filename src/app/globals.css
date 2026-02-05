@@ -520,6 +520,7 @@ section {
   padding: 0;
   border-radius: 24px;
   overflow: hidden;
+  background: color-mix(in srgb, var(--background) 94%, transparent);
 }
 
 .image-viewer__frame {
@@ -527,7 +528,6 @@ section {
   max-height: calc(100vh - 10rem);
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--background) 94%, transparent);
   padding: 2rem;
 }
 
@@ -536,6 +536,7 @@ section {
   height: auto;
   max-height: calc(100vh - 14rem);
   object-fit: contain;
+  display: block;
 }
 
 .project-row {

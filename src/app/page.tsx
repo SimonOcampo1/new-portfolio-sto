@@ -1030,7 +1030,7 @@ export default function Home() {
                   <DialogContent className="image-viewer" showCloseButton>
                     {imageModalUrl && (
                       <div className="image-viewer__frame">
-                        <Image src={imageModalUrl} alt="" width={1400} height={900} unoptimized />
+                        <img src={imageModalUrl} alt="" loading="eager" />
                       </div>
                     )}
                   </DialogContent>
