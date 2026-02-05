@@ -176,7 +176,7 @@ export default function Home() {
   const [activeProjectForm, setActiveProjectForm] = useState<null | any>(null);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [projectMediaIndex, setProjectMediaIndex] = useState(0);
-  const [imageModalUrl, setImageModalUrl] = useState<string | null>(null);
+  const [isCarouselOpen, setIsCarouselOpen] = useState(false);
   const [activePublicationForm, setActivePublicationForm] = useState<null | any>(null);
   const [activeSkillForm, setActiveSkillForm] = useState<null | any>(null);
   const [projectClosing, setProjectClosing] = useState(false);
@@ -516,12 +516,15 @@ export default function Home() {
     setProjectMediaIndex((prev) => (prev + 1) % projectMedia.length);
   };
 
-  const openImageModal = (url: string) => {
-    setImageModalUrl(url);
+  const openCarousel = (index?: number) => {
+    if (typeof index === "number") {
+      setProjectMediaIndex(index);
+    }
+    setIsCarouselOpen(true);
   };
 
-  const closeImageModal = () => {
-    setImageModalUrl(null);
+  const closeCarousel = () => {
+    setIsCarouselOpen(false);
   };
 
   // Merge static and dynamic publications
@@ -898,7 +901,6 @@ export default function Home() {
                                     width={960}
                                     height={540}
                                     className="project-details__media-item"
-                                    onClick={() => activeMedia?.url && openImageModal(activeMedia.url)}
                                     unoptimized
                                   />
                                 )}
@@ -922,9 +924,6 @@ export default function Home() {
                                     className={`project-details__thumbnail ${index === projectMediaIndex ? "is-active" : ""}`}
                                     onClick={() => {
                                       setProjectMediaIndex(index);
-                                      if (item.type === "image") {
-                                        openImageModal(item.url);
-                                      }
                                     }}
                                     aria-label={`Media ${index + 1}`}
                                   >
@@ -951,6 +950,13 @@ export default function Home() {
                             </div>
                           )}
                         </div>
+                        {hasMedia && (
+                          <div className="project-details__carousel-viewer">
+                            <Button variant="outline" onClick={() => openCarousel(projectMediaIndex)}>
+                              {language === "es" ? "Ver galeria" : "View gallery"}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   ) : (
@@ -1027,18 +1033,41 @@ export default function Home() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-                <Dialog open={Boolean(imageModalUrl)} onOpenChange={(open) => !open && closeImageModal()}>
-                  <DialogContent className="image-viewer" showCloseButton={false}>
-                    {imageModalUrl && (
-                      <div className="image-viewer__frame">
-                        <DialogClose asChild>
-                          <button type="button" className="image-viewer__close" aria-label="Close">
-                            <X size={18} />
-                          </button>
-                        </DialogClose>
-                        <img src={imageModalUrl} alt="" loading="eager" />
+                <Dialog open={isCarouselOpen} onOpenChange={(open) => !open && closeCarousel()}>
+                  <DialogContent className="carousel-viewer" showCloseButton={false}>
+                    <DialogClose asChild>
+                      <button type="button" className="carousel-viewer__close" aria-label="Close">
+                        <X size={18} />
+                      </button>
+                    </DialogClose>
+                    <div className="carousel-viewer__content">
+                      <button
+                        type="button"
+                        className="carousel-viewer__nav"
+                        onClick={goToPrevMedia}
+                        aria-label={language === "es" ? "Anterior" : "Previous"}
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <div className="carousel-viewer__media">
+                        {activeMedia?.type === "video" ? (
+                          <video src={activeMedia.url} controls playsInline />
+                        ) : (
+                          <img src={activeMedia?.url || ""} alt="" />
+                        )}
                       </div>
-                    )}
+                      <button
+                        type="button"
+                        className="carousel-viewer__nav"
+                        onClick={goToNextMedia}
+                        aria-label={language === "es" ? "Siguiente" : "Next"}
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    </div>
+                    <div className="carousel-viewer__counter">
+                      {projectMediaIndex + 1} / {projectMedia.length}
+                    </div>
                   </DialogContent>
                 </Dialog>
               </div>

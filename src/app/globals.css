@@ -514,49 +514,87 @@ section {
   color: color-mix(in srgb, var(--foreground) 60%, transparent);
 }
 
-.image-viewer {
-  max-width: min(1200px, 92vw) !important;
-  width: 92vw;
-  padding: 0;
-  border-radius: 0;
-  overflow: visible;
-  background: transparent;
-  border: none;
-  box-shadow: none;
+.carousel-viewer {
+  max-width: min(1200px, 94vw) !important;
+  width: 94vw;
+  padding: 2.5rem 2rem 2rem;
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--background) 92%, transparent);
 }
 
-.image-viewer__frame {
-  width: 100%;
-  max-height: calc(100vh - 10rem);
-  display: grid;
-  place-items: center;
-  padding: 2rem;
-  background: transparent;
-  position: relative;
-}
-
-.image-viewer__frame img {
-  width: 100%;
-  height: auto;
-  max-height: calc(100vh - 14rem);
-  object-fit: contain;
-  display: block;
-  border-radius: 22px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-}
-
-.image-viewer__close {
+.carousel-viewer__close {
   position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
+  top: 1.5rem;
+  right: 1.5rem;
   height: 34px;
   width: 34px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--foreground) 20%, transparent);
-  background: color-mix(in srgb, var(--background) 85%, transparent);
+  background: color-mix(in srgb, var(--background) 90%, transparent);
   color: color-mix(in srgb, var(--foreground) 70%, transparent);
   display: grid;
   place-items: center;
+}
+
+.carousel-viewer__content {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.carousel-viewer__media {
+  width: 100%;
+  max-height: calc(100vh - 12rem);
+  display: grid;
+  place-items: center;
+}
+
+.carousel-viewer__media img,
+.carousel-viewer__media video {
+  width: 100%;
+  height: auto;
+  max-height: calc(100vh - 14rem);
+  object-fit: contain;
+  border-radius: 20px;
+}
+
+.carousel-viewer__nav {
+  height: 44px;
+  width: 44px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 20%, transparent);
+  background: color-mix(in srgb, var(--background) 90%, transparent);
+  color: color-mix(in srgb, var(--foreground) 70%, transparent);
+  display: grid;
+  place-items: center;
+}
+
+.carousel-viewer__counter {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--foreground) 60%, transparent);
+}
+
+.project-details__carousel-viewer {
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .carousel-viewer {
+    padding: 2.25rem 1.5rem 1.5rem;
+  }
+
+  .carousel-viewer__content {
+    grid-template-columns: 1fr;
+  }
+
+  .carousel-viewer__nav {
+    justify-self: center;
+  }
 }
 
 .project-row {
