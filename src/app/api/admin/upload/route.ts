@@ -72,8 +72,16 @@ export async function POST(req: Request) {
       }
 
       const originalName = file.name || "upload";
-      const extension = originalName.includes(".") ? originalName.slice(originalName.lastIndexOf(".")) : (isImage ? ".png" : ".mp4");
-      const fileName = `${Date.now()}-${randomUUID()}${extension}`;
+      const extension = originalName.includes(".")
+        ? originalName.slice(originalName.lastIndexOf("."))
+        : (isImage ? ".png" : ".mp4");
+      const baseName = originalName.replace(extension, "");
+      const safeBaseName = baseName
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-zA-Z0-9._-]/g, "")
+        .slice(0, 80);
+      const fileName = `${Date.now()}-${randomUUID()}-${safeBaseName}${extension}`;
       const filePath = `projects/${fileName}`;
       const buffer = Buffer.from(await file.arrayBuffer());
 
