@@ -657,6 +657,21 @@ section {
   }
 }
 
+@media (max-width: 768px) and (orientation: portrait) {
+  .carousel-viewer__media {
+    width: 100vh;
+    height: 100vw;
+    transform: rotate(90deg);
+  }
+
+  .carousel-viewer__media img,
+  .carousel-viewer__media video {
+    width: 100vh;
+    height: 100vw;
+    max-height: none;
+  }
+}
+
 .project-row {
   display: grid;
   grid-template-columns: auto 1fr;
