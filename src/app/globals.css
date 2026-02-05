@@ -550,7 +550,7 @@ section {
   align-items: center;
   gap: 1.5rem;
   height: 100vh;
-  padding: 0;
+  padding: 0 2rem;
 }
 
 .carousel-viewer__media {
@@ -617,7 +617,7 @@ section {
 
   .carousel-viewer__content {
     grid-template-columns: 1fr;
-    padding: 0 1rem;
+    padding: 0 1.25rem;
   }
 
   .carousel-viewer__nav {
