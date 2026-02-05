@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Code2,
+  Expand,
   FileCode,
   Flag,
   Github,
@@ -951,11 +952,14 @@ export default function Home() {
                           )}
                         </div>
                         {hasMedia && (
-                          <div className="project-details__carousel-viewer">
-                            <Button variant="outline" onClick={() => openCarousel(projectMediaIndex)}>
-                              {language === "es" ? "Ver galeria" : "View gallery"}
-                            </Button>
-                          </div>
+                          <button
+                            type="button"
+                            className="project-details__fullscreen"
+                            onClick={() => openCarousel(projectMediaIndex)}
+                            aria-label={language === "es" ? "Ver galeria" : "View gallery"}
+                          >
+                            <Expand size={18} />
+                          </button>
                         )}
                       </div>
                     </motion.div>
