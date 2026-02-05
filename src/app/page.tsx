@@ -174,6 +174,7 @@ export default function Home() {
   const [activeProjectForm, setActiveProjectForm] = useState<null | any>(null);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [projectMediaIndex, setProjectMediaIndex] = useState(0);
+  const [imageModalUrl, setImageModalUrl] = useState<string | null>(null);
   const [activePublicationForm, setActivePublicationForm] = useState<null | any>(null);
   const [activeSkillForm, setActiveSkillForm] = useState<null | any>(null);
   const [projectClosing, setProjectClosing] = useState(false);
@@ -476,19 +477,30 @@ export default function Home() {
     const mediaVideos = project.mediaVideos || [];
     const projectVideos = project.video || [];
 
-    const filterByLanguage = (url: string) => {
+    const hasLanguageSuffix = (url: string) => {
+      const cleanUrl = url.split("?")[0];
+      return /-(en|es)(\.[^./]+)?$/i.test(cleanUrl);
+    };
+
+    const matchesLanguage = (url: string) => {
       const cleanUrl = url.split("?")[0];
       const suffixMatch = cleanUrl.match(/-(en|es)(\.[^./]+)?$/i);
-      if (!suffixMatch) return true;
+      if (!suffixMatch) return false;
       return suffixMatch[1].toLowerCase() === language;
     };
 
-    [...primaryImages, ...secondaryImages, ...mediaImages].forEach((url: string) => {
-      if (url && filterByLanguage(url)) images.add(url);
+    const filterMedia = (list: string[]) => {
+      const hasVariants = list.some((url) => url && hasLanguageSuffix(url));
+      if (!hasVariants) return list.filter(Boolean);
+      return list.filter((url) => url && matchesLanguage(url));
+    };
+
+    filterMedia([...primaryImages, ...secondaryImages, ...mediaImages]).forEach((url: string) => {
+      if (url) images.add(url);
     });
 
-    [...mediaVideos, ...projectVideos].forEach((url: string) => {
-      if (url && filterByLanguage(url)) videos.add(url);
+    filterMedia([...mediaVideos, ...projectVideos]).forEach((url: string) => {
+      if (url) videos.add(url);
     });
 
     const mediaItems = [
@@ -511,6 +523,14 @@ export default function Home() {
   const goToNextMedia = () => {
     if (!projectMedia.length) return;
     setProjectMediaIndex((prev) => (prev + 1) % projectMedia.length);
+  };
+
+  const openImageModal = (url: string) => {
+    setImageModalUrl(url);
+  };
+
+  const closeImageModal = () => {
+    setImageModalUrl(null);
   };
 
   // Merge static and dynamic publications
@@ -887,6 +907,7 @@ export default function Home() {
                                     width={960}
                                     height={540}
                                     className="project-details__media-item"
+                                    onClick={() => activeMedia?.url && openImageModal(activeMedia.url)}
                                     unoptimized
                                   />
                                 )}
@@ -908,7 +929,12 @@ export default function Home() {
                                     key={`${item.type}-${item.url}`}
                                     type="button"
                                     className={`project-details__thumbnail ${index === projectMediaIndex ? "is-active" : ""}`}
-                                    onClick={() => setProjectMediaIndex(index)}
+                                    onClick={() => {
+                                      setProjectMediaIndex(index);
+                                      if (item.type === "image") {
+                                        openImageModal(item.url);
+                                      }
+                                    }}
                                     aria-label={`Media ${index + 1}`}
                                   >
                                     {item.type === "video" ? (
@@ -1010,6 +1036,16 @@ export default function Home() {
                     </motion.div>
                   )}
                 </AnimatePresence>
+                {imageModalUrl && (
+                  <div className="image-modal" onClick={closeImageModal}>
+                    <button type="button" className="image-modal__close" onClick={closeImageModal}>
+                      x
+                    </button>
+                    <div className="image-modal__content" onClick={(event) => event.stopPropagation()}>
+                      <Image src={imageModalUrl} alt="" width={1200} height={800} unoptimized />
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
 

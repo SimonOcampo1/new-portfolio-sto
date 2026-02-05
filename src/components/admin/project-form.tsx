@@ -86,6 +86,27 @@ export function ProjectForm({ initialProject, onCancel, onSaved, language }: Pro
     });
   };
 
+  const moveMediaItem = (name: "mediaImages" | "mediaVideos", fromIndex: number, toIndex: number) => {
+    setFormData((prev: any) => {
+      const items = Array.isArray(prev[name]) ? [...prev[name]] : [];
+      if (toIndex < 0 || toIndex >= items.length) return prev;
+      const [moved] = items.splice(fromIndex, 1);
+      items.splice(toIndex, 0, moved);
+      return { ...prev, [name]: items };
+    });
+  };
+
+  const handleImageDragStart = (event: React.DragEvent<HTMLDivElement>, index: number) => {
+    event.dataTransfer.setData("text/plain", String(index));
+  };
+
+  const handleImageDrop = (event: React.DragEvent<HTMLDivElement>, index: number) => {
+    event.preventDefault();
+    const fromIndex = Number(event.dataTransfer.getData("text/plain"));
+    if (Number.isNaN(fromIndex)) return;
+    moveMediaItem("mediaImages", fromIndex, index);
+  };
+
   const uploadMediaFiles = async (files: FileList, mediaType: "images" | "videos") => {
     if (!files.length) return;
     setUploading(true);
@@ -314,6 +335,55 @@ export function ProjectForm({ initialProject, onCancel, onSaved, language }: Pro
         </div>
         {(formData.mediaImages?.length || formData.mediaVideos?.length) && (
           <div className="admin-form-span admin-media-list">
+            {(formData.mediaImages || []).length > 0 && (
+              <div className="admin-media-preview">
+                <p className="admin-media-preview__title">
+                  {language === "es" ? "Orden de imagenes" : "Image order"}
+                </p>
+                <div className="admin-media-preview__grid">
+                  {(formData.mediaImages || []).map((url: string, index: number) => (
+                    <div
+                      key={`preview-${url}-${index}`}
+                      className="admin-media-preview__card"
+                      draggable
+                      onDragStart={(event) => handleImageDragStart(event, index)}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={(event) => handleImageDrop(event, index)}
+                    >
+                      <img src={url} alt="preview" className="admin-media-preview__image" />
+                      <div className="admin-media-preview__index">{index + 1}</div>
+                      <div className="admin-media-preview__actions">
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7"
+                          onClick={() => moveMediaItem("mediaImages", index, index - 1)}
+                          disabled={index === 0}
+                        >
+                          ↑
+                        </Button>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7"
+                          onClick={() => moveMediaItem("mediaImages", index, index + 1)}
+                          disabled={index === (formData.mediaImages?.length || 0) - 1}
+                        >
+                          ↓
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="admin-media-preview__hint">
+                  {language === "es"
+                    ? "Arrastra para reordenar o usa las flechas."
+                    : "Drag to reorder or use the arrows."}
+                </p>
+              </div>
+            )}
             {(formData.mediaImages || []).map((url: string, index: number) => (
               <div key={`image-${url}-${index}`} className="admin-media-chip">
                 <span className="admin-media-chip__label">{language === "es" ? "Imagen" : "Image"}</span>
