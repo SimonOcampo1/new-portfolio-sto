@@ -841,6 +841,30 @@ section {
   border-radius: 999px;
 }
 
+.admin-media-preview__delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  height: 26px;
+  width: 26px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 15%, transparent);
+  background: color-mix(in srgb, var(--background) 85%, transparent);
+  color: color-mix(in srgb, var(--foreground) 70%, transparent);
+}
+
+.admin-media-preview__video {
+  display: grid;
+  place-items: center;
+  height: 88px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: color-mix(in srgb, var(--foreground) 60%, transparent);
+}
+
 .admin-media-preview__hint {
   font-size: 0.65rem;
   color: color-mix(in srgb, var(--foreground) 60%, transparent);

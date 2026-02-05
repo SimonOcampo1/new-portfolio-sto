@@ -477,30 +477,19 @@ export default function Home() {
     const mediaVideos = project.mediaVideos || [];
     const projectVideos = project.video || [];
 
-    const hasLanguageSuffix = (url: string) => {
-      const cleanUrl = url.split("?")[0];
-      return /-(en|es)(\.[^./]+)?$/i.test(cleanUrl);
-    };
-
-    const matchesLanguage = (url: string) => {
+    const shouldIncludeMedia = (url: string) => {
       const cleanUrl = url.split("?")[0];
       const suffixMatch = cleanUrl.match(/-(en|es)(\.[^./]+)?$/i);
-      if (!suffixMatch) return false;
+      if (!suffixMatch) return true;
       return suffixMatch[1].toLowerCase() === language;
     };
 
-    const filterMedia = (list: string[]) => {
-      const hasVariants = list.some((url) => url && hasLanguageSuffix(url));
-      if (!hasVariants) return list.filter(Boolean);
-      return list.filter((url) => url && matchesLanguage(url));
-    };
-
-    filterMedia([...primaryImages, ...secondaryImages, ...mediaImages]).forEach((url: string) => {
-      if (url) images.add(url);
+    [...primaryImages, ...secondaryImages, ...mediaImages].forEach((url: string) => {
+      if (url && shouldIncludeMedia(url)) images.add(url);
     });
 
-    filterMedia([...mediaVideos, ...projectVideos]).forEach((url: string) => {
-      if (url) videos.add(url);
+    [...mediaVideos, ...projectVideos].forEach((url: string) => {
+      if (url && shouldIncludeMedia(url)) videos.add(url);
     });
 
     const mediaItems = [

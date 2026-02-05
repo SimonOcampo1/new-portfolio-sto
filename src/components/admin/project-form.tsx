@@ -352,6 +352,14 @@ export function ProjectForm({ initialProject, onCancel, onSaved, language }: Pro
                     >
                       <img src={url} alt="preview" className="admin-media-preview__image" />
                       <div className="admin-media-preview__index">{index + 1}</div>
+                      <button
+                        type="button"
+                        className="admin-media-preview__delete"
+                        onClick={() => handleRemoveMedia("mediaImages", index)}
+                        aria-label={language === "es" ? "Eliminar imagen" : "Remove image"}
+                      >
+                        <Trash2 size={14} />
+                      </button>
                       <div className="admin-media-preview__actions">
                         <Button
                           type="button"
@@ -384,36 +392,31 @@ export function ProjectForm({ initialProject, onCancel, onSaved, language }: Pro
                 </p>
               </div>
             )}
-            {(formData.mediaImages || []).map((url: string, index: number) => (
-              <div key={`image-${url}-${index}`} className="admin-media-chip">
-                <span className="admin-media-chip__label">{language === "es" ? "Imagen" : "Image"}</span>
-                <span className="admin-media-chip__url">{url}</span>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="h-6 w-6"
-                  onClick={() => handleRemoveMedia("mediaImages", index)}
-                >
-                  x
-                </Button>
+            {(formData.mediaVideos || []).length > 0 && (
+              <div className="admin-media-preview">
+                <p className="admin-media-preview__title">
+                  {language === "es" ? "Videos" : "Videos"}
+                </p>
+                <div className="admin-media-preview__grid">
+                  {(formData.mediaVideos || []).map((url: string, index: number) => (
+                    <div key={`video-${url}-${index}`} className="admin-media-preview__card" role="group">
+                      <div className="admin-media-preview__video">
+                        {language === "es" ? "Video" : "Video"}
+                      </div>
+                      <div className="admin-media-preview__index">{index + 1}</div>
+                      <button
+                        type="button"
+                        className="admin-media-preview__delete"
+                        onClick={() => handleRemoveMedia("mediaVideos", index)}
+                        aria-label={language === "es" ? "Eliminar video" : "Remove video"}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-            {(formData.mediaVideos || []).map((url: string, index: number) => (
-              <div key={`video-${url}-${index}`} className="admin-media-chip">
-                <span className="admin-media-chip__label">{language === "es" ? "Video" : "Video"}</span>
-                <span className="admin-media-chip__url">{url}</span>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="h-6 w-6"
-                  onClick={() => handleRemoveMedia("mediaVideos", index)}
-                >
-                  x
-                </Button>
-              </div>
-            ))}
+            )}
           </div>
         )}
       </div>
