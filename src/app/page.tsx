@@ -306,7 +306,7 @@ export default function Home() {
       setLanguage(stored);
     }
 
-    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    const mediaQuery = window.matchMedia("(max-width: 1279px)");
     const updateIsMobile = () => setIsMobile(mediaQuery.matches);
     updateIsMobile();
     if (mediaQuery.addEventListener) {
@@ -314,7 +314,7 @@ export default function Home() {
     } else {
       mediaQuery.addListener(updateIsMobile);
     }
-    
+
     // Fetch dynamic data
     fetch("/api/portfolio-data")
       .then((res) => res.json())
@@ -352,7 +352,7 @@ export default function Home() {
       // If the body is scroll-locked by a dialog/modal, do not override overflow styles.
       // Radix UI adds 'data-scroll-locked' to the body.
       if (document.body.hasAttribute("data-scroll-locked")) {
-          return;
+        return;
       }
 
       const slideId = slides[currentSlide];
@@ -397,7 +397,7 @@ export default function Home() {
   };
 
   const t = useMemo(() => translations[language], [language]);
-  
+
   // Merge static and dynamic projects
   const mergedProjects = useMemo(() => {
     const dynamicProjects = dynamicData.projects.map((p: ProjectData) => {
@@ -440,7 +440,7 @@ export default function Home() {
         additionalImages: [],
         mediaImages,
         mediaVideos,
-        tags: { 
+        tags: {
           en: tagsEn ? tagsEn.split(",") : [],
           es: tagsEs ? tagsEs.split(",") : []
         },
@@ -550,14 +550,14 @@ export default function Home() {
     }));
     return [...dynamicPubs, ...staticPubs];
   }, [dynamicData.publications]);
-  
+
   // Publications Logic
   const totalPublicationPages = Math.ceil(mergedPublications.length / ITEMS_PER_PAGE);
   const currentPublications = mergedPublications.slice(
     publicationPage * ITEMS_PER_PAGE,
     (publicationPage + 1) * ITEMS_PER_PAGE
   );
-  
+
   // Merge static and dynamic skills
   const mergedSkills = useMemo(() => {
     // Transform static skills to object format
@@ -579,7 +579,7 @@ export default function Home() {
   // Merge static and dynamic icons
   const mergedIconMap = useMemo(() => {
     const staticMap = Object.fromEntries(skillIcons.map(i => [i.label, i.icon]));
-    
+
     const dynamicMap: Record<string, any> = {};
     dynamicData.skills.forEach((s: SkillData) => {
       if (s.name && s.icon && lucideIconMap[s.icon]) {
@@ -643,17 +643,17 @@ export default function Home() {
               {slides.map((slide, index) => {
                 const Icon = navIcons[slide];
                 return (
-                <button
-                  key={slide}
-                  type="button"
-                  className={`nav-island__link ${index === currentSlide ? "is-active" : ""}`}
-                  onClick={() => goToSlide(index)}
-                  aria-label={getLabel(slide)}
-                  title={getLabel(slide)}
-                >
-                  {isMobile ? <Icon size={16} aria-hidden="true" /> : getLabel(slide)}
-                </button>
-              );
+                  <button
+                    key={slide}
+                    type="button"
+                    className={`nav-island__link ${index === currentSlide ? "is-active" : ""}`}
+                    onClick={() => goToSlide(index)}
+                    aria-label={getLabel(slide)}
+                    title={getLabel(slide)}
+                  >
+                    {isMobile ? <Icon size={16} aria-hidden="true" /> : getLabel(slide)}
+                  </button>
+                );
               })}
             </nav>
             <div className="nav-island__actions">
@@ -695,46 +695,51 @@ export default function Home() {
                 transition={{ duration: 0.65, ease: easing }}
               >
                 <motion.div variants={fadeUp} className="hero-content space-y-4">
-                  <div className="flex flex-col items-center gap-1 md:items-start">
-                     <p className="text-sm uppercase tracking-[0.45em] text-muted-foreground ml-1">
-                        {t.hero.greeting}
-                     </p>
+                  <div className="flex flex-col items-center gap-1 xl:items-start">
+                    <p className="text-sm md:text-base xl:text-lg uppercase tracking-[0.45em] text-muted-foreground ml-1">
+                      {t.hero.greeting}
+                    </p>
                   </div>
-                  
-                  <h1 className="hero-title font-display font-black uppercase leading-[0.85] tracking-tighter text-[8vw] md:text-[6rem] lg:text-[8rem] text-primary -ml-[0.05em] text-center md:text-left">
+
+                  <h1 className="hero-title font-display font-black uppercase leading-[0.85] tracking-tighter text-[8vw] md:text-[6rem] xl:text-[10rem] 2xl:text-[12rem] text-primary -ml-[0.05em] text-center xl:text-left">
                     SIMÓN
                     <br />
                     <span className="ml-[0.1em] text-muted-foreground/30">OCAMPO</span>
                   </h1>
 
                   <div className="pt-4">
-                    <div className="inline-flex items-center px-4 py-2 rounded-full border border-foreground/10 bg-background/30 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)]">
-                        <span className="w-2 h-2 rounded-full bg-primary/60 mr-3 animate-pulse"></span>
-                        <p className="text-xs md:text-sm font-medium tracking-wide text-foreground/80">
-                           {t.hero.title}
-                        </p>
+                    <div className="inline-flex items-center px-4 py-2 md:px-6 md:py-3 rounded-full border border-foreground/10 bg-background/30 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)]">
+                      <span className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-primary/60 mr-3 animate-pulse"></span>
+                      <p className="text-xs md:text-base font-medium tracking-wide text-foreground/80">
+                        {t.hero.title}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-center gap-3 pt-4 md:justify-start">
-                    <Button onClick={() => goToSlide(1)}>{t.hero.cta}</Button>
-                    <Button asChild variant="outline">
-                      <a href={cvFile} target="_blank" rel="noreferrer">
-                        {language === "en" ? "Download CV" : "Descargar CV"}
-                      </a>
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-center gap-4 text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground md:justify-start">
-                    <span>Social</span>
-                    <div className="flex items-center gap-3">
-                      <Button variant="ghost" size="icon" aria-label="GitHub" asChild>
-                        <a href="https://github.com/SimonOcampo1" target="_blank" rel="noreferrer">
-                          <Github size={16} />
+                  <div className="flex flex-col xl:flex-row items-center justify-center xl:justify-start gap-4 pt-6">
+                    <div className="flex flex-wrap items-center justify-center gap-4">
+                      <Button onClick={() => goToSlide(1)} size="lg" className="md:text-lg md:h-12 md:px-8">{t.hero.cta}</Button>
+                      <Button asChild variant="outline" size="lg" className="md:text-lg md:h-12 md:px-8">
+                        <a href={cvFile} target="_blank" rel="noreferrer">
+                          {language === "en" ? "Download CV" : "Descargar CV"}
                         </a>
                       </Button>
-                      <Button variant="ghost" size="icon" aria-label="Email" onClick={copyEmail}>
-                        {copied ? <Check size={16} /> : <Mail size={16} />}
-                      </Button>
+                    </div>
+
+                    <div className="hidden xl:block w-px h-12 bg-foreground/10 mx-2"></div>
+
+                    <div className="flex items-center justify-center gap-4 text-[0.6rem] md:text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                      <span className="xl:hidden">Social</span>
+                      <div className="flex items-center gap-3">
+                        <Button variant="ghost" size="icon" aria-label="GitHub" asChild className="md:h-10 md:w-10">
+                          <a href="https://github.com/SimonOcampo1" target="_blank" rel="noreferrer">
+                            <Github size={20} className="md:w-6 md:h-6" />
+                          </a>
+                        </Button>
+                        <Button variant="ghost" size="icon" aria-label="Email" onClick={copyEmail} className="md:h-10 md:w-10">
+                          {copied ? <Check size={20} className="md:w-6 md:h-6" /> : <Mail size={20} className="md:w-6 md:h-6" />}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -742,15 +747,15 @@ export default function Home() {
                 <motion.div
                   variants={fadeUp}
                   transition={{ duration: 0.7, delay: 0.1 }}
-                  className="hero-media relative flex justify-center md:justify-self-start"
+                  className="hero-media relative flex justify-center xl:justify-self-start"
                 >
                   <Image
                     key={mounted ? resolvedTheme : "theme-loading"}
                     src={heroAvatarSrc}
                     alt="Simón Ocampo"
-                    width={360}
-                    height={360}
-                    className="hero-avatar h-auto w-56 object-contain sm:w-64 md:w-[20rem]"
+                    width={500}
+                    height={500}
+                    className="hero-avatar h-auto w-56 object-contain sm:w-64 md:w-80 xl:w-[35rem] 2xl:w-[40rem]"
                     priority
                   />
                 </motion.div>
@@ -771,20 +776,20 @@ export default function Home() {
                       {t.projects.title}
                     </p>
                     <div className="flex items-center gap-2">
-                        <h2 className="font-display text-3xl">
+                      <h2 className="font-display text-3xl">
                         {language === "en" ? "Featured Works" : "Trabajos Destacados"}
-                        </h2>
-                        {isAdmin && (
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => (activeProjectForm ? closeProjectForm() : setActiveProjectForm({}))}
-                            aria-label="Add project"
-                          >
-                            <span className="text-lg leading-none">+</span>
-                          </Button>
-                        )}
+                      </h2>
+                      {isAdmin && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => (activeProjectForm ? closeProjectForm() : setActiveProjectForm({}))}
+                          aria-label="Add project"
+                        >
+                          <span className="text-lg leading-none">+</span>
+                        </Button>
+                      )}
                     </div>
                   </motion.div>
                   <motion.div variants={sectionReveal}>
@@ -1002,36 +1007,36 @@ export default function Home() {
                                   ))}
                                 </div>
                               </div>
-                            <p className="project-row__summary">
-                              {project.shortDescription[language]}
-                            </p>
-                            <div className="project-row__meta">
-                              <div className="project-row__actions">
-                                <Button size="sm" variant="ghost" onClick={() => openProject(project)}>
-                                  {viewProjectLabel}
-                                </Button>
-                                {isValidUrl(project.codeUrl) && (
-                                  <Button asChild size="sm" variant="outline">
-                                    <a href={project.codeUrl} target="_blank" rel="noreferrer">
-                                      {t.projects.viewCode}
-                                    </a>
+                              <p className="project-row__summary">
+                                {project.shortDescription[language]}
+                              </p>
+                              <div className="project-row__meta">
+                                <div className="project-row__actions">
+                                  <Button size="sm" variant="ghost" onClick={() => openProject(project)}>
+                                    {viewProjectLabel}
                                   </Button>
-                                )}
-                                {isAdmin && (project as any).isEditable && (
-                                  <Button
-                                    variant="secondary"
-                                    size="icon"
-                                    className="h-8 w-8 shadow-sm"
-                                    onClick={() => setActiveProjectForm(project)}
-                                    aria-label="Edit project"
-                                  >
-                                    <Pencil size={14} />
-                                  </Button>
-                                )}
+                                  {isValidUrl(project.codeUrl) && (
+                                    <Button asChild size="sm" variant="outline">
+                                      <a href={project.codeUrl} target="_blank" rel="noreferrer">
+                                        {t.projects.viewCode}
+                                      </a>
+                                    </Button>
+                                  )}
+                                  {isAdmin && (project as any).isEditable && (
+                                    <Button
+                                      variant="secondary"
+                                      size="icon"
+                                      className="h-8 w-8 shadow-sm"
+                                      onClick={() => setActiveProjectForm(project)}
+                                      aria-label="Edit project"
+                                    >
+                                      <Pencil size={14} />
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
                         </motion.div>
                       ))}
                     </motion.div>
@@ -1100,7 +1105,7 @@ export default function Home() {
                       </p>
                       <div className="flex items-center gap-2">
                         <h2 className="font-display text-3xl">
-                            {language === "en"
+                          {language === "en"
                             ? "Academic Publications"
                             : "Publicaciones Académicas"}
                         </h2>
@@ -1140,12 +1145,12 @@ export default function Home() {
                         transition={{ duration: 0.3, ease: easing }}
                         className={publicationClosing ? "admin-form-wrapper admin-form-wrapper--closing" : "admin-form-wrapper"}
                       >
-                    <PublicationForm
-                      initialPublication={activePublicationForm?.id ? activePublicationForm : undefined}
-                      onCancel={closePublicationForm}
-                      onSaved={closePublicationForm}
-                      language={language}
-                    />
+                        <PublicationForm
+                          initialPublication={activePublicationForm?.id ? activePublicationForm : undefined}
+                          onCancel={closePublicationForm}
+                          onSaved={closePublicationForm}
+                          language={language}
+                        />
                       </motion.div>
                     )}
                     <div className="publication-list relative min-h-[300px]">
@@ -1207,32 +1212,32 @@ export default function Home() {
 
                     {/* Pagination Controls */}
                     {mergedPublications.length > ITEMS_PER_PAGE && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="flex items-center justify-end gap-2 pt-2"
                       >
-                         <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={prevPage}
-                            disabled={publicationPage === 0}
-                            className="h-8 w-8 disabled:opacity-30 transition-opacity"
-                          >
-                            <ChevronLeft size={16} />
-                          </Button>
-                          <span className="text-xs text-muted-foreground tabular-nums tracking-widest">
-                            {publicationPage + 1} / {totalPublicationPages}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={nextPage}
-                            disabled={publicationPage >= totalPublicationPages - 1}
-                            className="h-8 w-8 disabled:opacity-30 transition-opacity"
-                          >
-                            <ChevronRight size={16} />
-                          </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={prevPage}
+                          disabled={publicationPage === 0}
+                          className="h-8 w-8 disabled:opacity-30 transition-opacity"
+                        >
+                          <ChevronLeft size={16} />
+                        </Button>
+                        <span className="text-xs text-muted-foreground tabular-nums tracking-widest">
+                          {publicationPage + 1} / {totalPublicationPages}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={nextPage}
+                          disabled={publicationPage >= totalPublicationPages - 1}
+                          className="h-8 w-8 disabled:opacity-30 transition-opacity"
+                        >
+                          <ChevronRight size={16} />
+                        </Button>
                       </motion.div>
                     )}
                   </div>
@@ -1257,7 +1262,7 @@ export default function Home() {
                   </motion.p>
                   <div className="flex items-center gap-2">
                     <motion.h2 variants={sectionReveal} className="font-display text-3xl">
-                        {language === "en" ? "My Skills" : "Mis Habilidades"}
+                      {language === "en" ? "My Skills" : "Mis Habilidades"}
                     </motion.h2>
                     {isAdmin && (
                       <Button
@@ -1289,26 +1294,26 @@ export default function Home() {
                   </motion.div>
                 )}
                 <div className="skills-grid">
-                  <PaginatedSkillPanel 
-                    title={t.skills.technical} 
-                    items={mergedSkills.technical} 
-                    itemsPerPage={10} 
+                  <PaginatedSkillPanel
+                    title={t.skills.technical}
+                    items={mergedSkills.technical}
+                    itemsPerPage={10}
                     iconMap={mergedIconMap}
                     isAdmin={isAdmin}
                     onEditSkill={(skill) => setActiveSkillForm(skill)}
                   />
-                  <PaginatedSkillPanel 
-                    title={t.skills.academic} 
-                    items={mergedSkills.academic} 
-                    itemsPerPage={10} 
+                  <PaginatedSkillPanel
+                    title={t.skills.academic}
+                    items={mergedSkills.academic}
+                    itemsPerPage={10}
                     defaultIcon={GraduationCap}
                     isAdmin={isAdmin}
                     onEditSkill={(skill) => setActiveSkillForm(skill)}
                   />
-                  <PaginatedSkillPanel 
-                    title={t.skills.languages} 
-                    items={mergedSkills.languages} 
-                    itemsPerPage={10} 
+                  <PaginatedSkillPanel
+                    title={t.skills.languages}
+                    items={mergedSkills.languages}
+                    itemsPerPage={10}
                     defaultIcon={Globe}
                     isAdmin={isAdmin}
                     onEditSkill={(skill) => setActiveSkillForm(skill)}
@@ -1316,7 +1321,7 @@ export default function Home() {
                 </div>
               </div>
             </section>
-            
+
             <section id="contact" className="carousel-slide">
               <div className="section-body">
                 <div className="grid gap-10 md:grid-cols-[1fr_1.2fr]">
@@ -1356,26 +1361,26 @@ export default function Home() {
                         </a>
                       </Button>
                     </motion.div>
-                    
-                    {/* Admin Access Link */}
-                     <div className="pt-8 flex justify-start">
-                          <button 
-                             onClick={() => {
-                               if (isAdmin) {
-                                 supabaseClient.auth.signOut();
-                                 return;
-                               }
 
-                               supabaseClient.auth.signInWithOAuth({
-                                 provider: "google",
-                                 options: { redirectTo: `${window.location.origin}/auth/callback` },
-                               });
-                             }}
-                             className="text-[0.6rem] text-muted-foreground/20 hover:text-muted-foreground transition-colors uppercase tracking-widest"
-                          >
-                             {isAdmin ? "Admin Logout" : "Admin Access"}
-                          </button>
-                     </div>
+                    {/* Admin Access Link */}
+                    <div className="pt-8 flex justify-start">
+                      <button
+                        onClick={() => {
+                          if (isAdmin) {
+                            supabaseClient.auth.signOut();
+                            return;
+                          }
+
+                          supabaseClient.auth.signInWithOAuth({
+                            provider: "google",
+                            options: { redirectTo: `${window.location.origin}/auth/callback` },
+                          });
+                        }}
+                        className="text-[0.6rem] text-muted-foreground/20 hover:text-muted-foreground transition-colors uppercase tracking-widest"
+                      >
+                        {isAdmin ? "Admin Logout" : "Admin Access"}
+                      </button>
+                    </div>
 
                   </motion.div>
                   <motion.div
